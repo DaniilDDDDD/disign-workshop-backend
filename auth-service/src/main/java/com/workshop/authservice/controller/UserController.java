@@ -137,22 +137,21 @@ public class UserController {
     }
 
 
-    @PutMapping("")
+    @PutMapping(value = "", consumes = {"multipart/form-data"})
     @Operation(
             summary = "Update self",
             description = "Update authenticated user."
     )
     public ResponseEntity<UserInfo> update(
             @Valid
-            @RequestBody
+            @ModelAttribute
                     UserUpdate userUpdate,
-            Authentication authentication,
-            MultipartFile multipartFile
+            Authentication authentication
     ) throws IOException {
 
         Long id = ((User) authentication.getPrincipal()).getId();
 
-        User user = userService.update(id, userUpdate, multipartFile);
+        User user = userService.update(id, userUpdate);
 
         return ResponseEntity.ok().body(
                 UserInfo.parseUser(user)
@@ -170,10 +169,7 @@ public class UserController {
     ) throws IOException {
         User user = (User) authentication.getPrincipal();
         userService.delete(user);
-        return new ResponseEntity<>(
-                "User " + user.getEmail() + " deleted!",
-                HttpStatus.NO_CONTENT
-        );
+        return ResponseEntity.noContent().build();
     }
 
 }

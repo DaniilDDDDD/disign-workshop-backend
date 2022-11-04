@@ -2,6 +2,7 @@ package com.workshop.authservice.dto.user;
 
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,5 +15,6 @@ public class UserUpdate {
     private String lastName;
     private String bio;
     private List<String> roles;
+    private MultipartFile avatar;
 
 }

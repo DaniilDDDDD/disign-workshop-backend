@@ -19,11 +19,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +32,7 @@ import java.util.Optional;
 @Service
 public class UserService implements UserDetailsService {
 
-    @Value("filesRoot")
+    @Value("${filesRoot}")
     private String filesRoot;
 
     @Value("#{'${publicRoles}'.split(',')}")
@@ -96,12 +96,9 @@ public class UserService implements UserDetailsService {
     }
 
     public List<User> getUserWithRolesIn(List<String> roles) {
-
         roles = roles.stream().filter(r -> publicRoleNames.contains(r)).toList();
-
         if (roles.isEmpty())
             return userRepository.getAllByRolesIn(publicRoles);
-
         return userRepository.getAllByRolesIn(
                 roles.stream()
                         .map(roleName -> {
@@ -159,34 +156,38 @@ public class UserService implements UserDetailsService {
         user.setRoles(List.of(role));
 
         return userRepository.save(user);
-
     }
 
     public User update(
             Long id,
-            UserUpdate userUpdate,
-            MultipartFile multipartFile
+            UserUpdate userUpdate
     ) throws IOException {
         Optional<User> userData = userRepository.getUserById(id);
         if (userData.isEmpty()) throw new EntityNotFoundException("User with id " + id + "not found!");
 
         User user = userData.get();
 
-        String fileName = user.getAvatar();
-        if (multipartFile != null) {
-            fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-            if (user.getAvatar() == null) {
-                String uploadDir = this.filesRoot + id + "/";
-                FileUtil.saveFile(uploadDir, fileName, multipartFile);
-            } else {
-                FileUtil.updateFile(user.getAvatar(), fileName, multipartFile);
-            }
-        }
-
         user.setUsername(userUpdate.getUsername() != null ? userUpdate.getUsername() : user.getUsername());
         user.setFirstName(userUpdate.getFirstName() != null ? userUpdate.getFirstName() : user.getFirstName());
         user.setLastName(userUpdate.getLastName() != null ? userUpdate.getLastName() : user.getLastName());
         user.setBio(userUpdate.getBio() != null ? userUpdate.getBio() : user.getBio());
+
+        String fileName = user.getAvatar();
+        if (userUpdate.getAvatar() != null) {
+            fileName = StringUtils.cleanPath(userUpdate.getAvatar().getOriginalFilename());
+            String uploadDir = this.filesRoot + id + "/";
+            if (user.getAvatar() == null) {
+                FileUtil.saveFile(uploadDir, fileName, userUpdate.getAvatar());
+                fileName = uploadDir + fileName;
+            } else {
+                FileUtil.updateFile(user.getAvatar() + fileName, fileName, userUpdate.getAvatar());
+                fileName = user.getAvatar();
+            }
+        } else if (user.getAvatar() != null) {
+            FileUtil.deleteFile(user.getAvatar());
+            fileName = null;
+        }
+        user.setAvatar(fileName);
 
         List<Role> roles = user.getRoles();
         if (userUpdate.getRoles() != null) {
@@ -198,13 +199,14 @@ public class UserService implements UserDetailsService {
         }
         user.setRoles(roles);
 
-        user.setAvatar(fileName);
-        return user;
+        return userRepository.save(user);
     }
 
+    @Transactional
     public void delete(User user) throws IOException {
+        if (user.getAvatar() != null)
+            FileUtil.deleteFile(user.getAvatar());
         userRepository.delete(user);
-        FileUtil.deleteFile(user.getAvatar());
     }
 
     @Override
