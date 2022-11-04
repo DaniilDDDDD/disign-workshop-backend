@@ -22,7 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityExistsException;
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 @RestController
@@ -50,21 +53,17 @@ public class UserController {
             @RequestBody
                     UserLogin userLogin
     ) throws AuthenticationException, JwtException {
-
         User user = userService.login(userLogin);
-
         String token = jwtTokenProvider.createToken(
                 user.getEmail(),
                 user.getAuthorities()
         );
-
         return ResponseEntity.ok().body(
                 UserLogin.builder()
                         .login(user.getEmail())
                         .token(token)
                         .build()
         );
-
     }
 
 
@@ -85,6 +84,7 @@ public class UserController {
         );
     }
 
+
     @GetMapping("/me")
     @Operation(
             summary = "Retrieve self",
@@ -93,41 +93,12 @@ public class UserController {
     public ResponseEntity<UserInfo> me(
             Authentication authentication
     ) throws EntityExistsException {
-        User user = userService.getUserByEmail(authentication.getName());
+        User user = userService.getUserByEmail(((User) authentication.getPrincipal()).getEmail());
         return ResponseEntity.ok().body(
                 UserInfo.parseUser(user)
         );
     }
 
-    @GetMapping("/{id}")
-    @Operation(
-            summary = "Retrieve user",
-            description = "Retrieve info about user by id."
-    )
-    public ResponseEntity<UserInfo> retrieveUserPublicInfoById(
-            @PathVariable("id")
-                    Long id
-    ) throws EntityExistsException {
-        User user = userService.getUserById(id);
-        return ResponseEntity.ok().body(
-                UserInfo.parseUserPublic(user)
-        );
-    }
-
-    @GetMapping("/{email}")
-    @Operation(
-            summary = "Retrieve user",
-            description = "Retrieve info about user by id."
-    )
-    public ResponseEntity<UserInfo> retrieveUserPublicInfoByEmail(
-            @PathVariable("email")
-                    String email
-    ) throws EntityExistsException {
-        User user = userService.getUserByEmail(email);
-        return ResponseEntity.ok().body(
-                UserInfo.parseUserPublic(user)
-        );
-    }
 
     @GetMapping("")
     @Operation(
@@ -135,23 +106,36 @@ public class UserController {
             description = "Retrieve info about user by id."
     )
     public ResponseEntity<List<UserInfo>> listUsers(
-            @RequestParam("roles")
+            @RequestParam(value = "id", required = false)
+            @Min(value = 1, message = "minimal value for id is 1")
+                    Long id,
+            @RequestParam(value = "email", required = false)
+            @Email
+                    String email,
+            @RequestParam(value = "username", required = false)
+                    String username,
+            @RequestParam(value = "roles", required = false)
                     List<String> roles
     ) throws EntityExistsException {
 
-        List<String> publicRoles = List.of("ROLE_CUSTOMER", "ROLE_AUTHOR", "ROLE_EXECUTOR");
-        List<User> users;
+        List<User> users = new LinkedList<>();
 
-        if (!roles.isEmpty())
-            users = userService.getUserWithRolesIn(publicRoles);
-
-        roles.stream().filter(r -> !publicRoles.contains(r)).toList();
-        users = userService.getUserWithRolesIn(roles);
+        if (id != null)
+            users.add(userService.getUserById(id));
+        else if (email != null)
+            users.add(userService.getUserByEmail(email));
+        else if (username != null)
+            users.add(userService.getUserByUsername(username));
+        else if (roles != null)
+            users = userService.getUserWithRolesIn(roles);
+        else
+            users = userService.getUserWithRolesIn(List.of());
 
         return ResponseEntity.ok().body(
                 users.stream().map(UserInfo::parseUserPublic).toList()
         );
     }
+
 
     @PutMapping("")
     @Operation(
@@ -174,4 +158,22 @@ public class UserController {
                 UserInfo.parseUser(user)
         );
     }
+
+
+    @DeleteMapping("")
+    @Operation(
+            summary = "Delete self",
+            description = "Delete authenticated user."
+    )
+    public ResponseEntity<String> delete(
+            Authentication authentication
+    ) throws IOException {
+        User user = (User) authentication.getPrincipal();
+        userService.delete(user);
+        return new ResponseEntity<>(
+                "User " + user.getEmail() + " deleted!",
+                HttpStatus.NO_CONTENT
+        );
+    }
+
 }

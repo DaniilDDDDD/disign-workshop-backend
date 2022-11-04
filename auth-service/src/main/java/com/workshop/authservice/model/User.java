@@ -15,12 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
 @Entity
 @Table(name = "\"user\"")
 @Getter
 @Setter
 @Builder
-@ToString
+@AllArgsConstructor
 public class User implements Serializable, UserDetails, OAuth2User {
 
     @Id

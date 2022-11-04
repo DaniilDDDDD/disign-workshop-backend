@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
@@ -34,6 +35,16 @@ public class UserService implements UserDetailsService {
     @Value("filesRoot")
     private String filesRoot;
 
+    @Value("#{'${publicRoles}'.split(',')}")
+    private List<String> publicRoleNames;
+
+    @Value("#{'${adminRoles}'.split(',')}")
+    private List<String> adminRoleNames;
+
+    private List<Role> publicRoles;
+
+    private List<Role> adminRoles;
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -43,6 +54,27 @@ public class UserService implements UserDetailsService {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @PostConstruct
+    private void initialization() {
+        publicRoles = publicRoleNames.stream()
+                .map(roleName -> {
+                    Optional<Role> role = roleRepository.getRoleByName(roleName);
+                    if (role.isEmpty())
+                        return roleRepository.save(Role.builder().name(roleName).build());
+                    return role.get();
+                })
+                .toList();
+
+        adminRoles = adminRoleNames.stream()
+                .map(roleName -> {
+                    Optional<Role> role = roleRepository.getRoleByName(roleName);
+                    if (role.isEmpty())
+                        return roleRepository.save(Role.builder().name(roleName).build());
+                    return role.get();
+                })
+                .toList();
     }
 
     public User getUserByEmail(String email) throws EntityNotFoundException {
@@ -57,12 +89,30 @@ public class UserService implements UserDetailsService {
         return user.get();
     }
 
+    public User getUserByUsername(String username) throws EntityNotFoundException {
+        Optional<User> user = userRepository.getUserByUsername(username);
+        if (user.isEmpty()) throw new EntityNotFoundException("No user with username " + username);
+        return user.get();
+    }
+
     public List<User> getUserWithRolesIn(List<String> roles) {
-        List<Role> rolesData = roles.stream().map(roleName -> {
-            Optional<Role> role = roleRepository.getRoleByName(roleName);
-            return role.isEmpty() ? null : role.get();
-        }).filter(Objects::nonNull).toList();
-        return userRepository.getAllByRolesIn(rolesData);
+
+        roles = roles.stream().filter(r -> publicRoleNames.contains(r)).toList();
+
+        if (roles.isEmpty())
+            return userRepository.getAllByRolesIn(publicRoles);
+
+        return userRepository.getAllByRolesIn(
+                roles.stream()
+                        .map(roleName -> {
+                            for (Role role : publicRoles)
+                                if (Objects.equals(roleName, role.getName()))
+                                    return role;
+                            return null;
+                        })
+                        .filter(Objects::nonNull)
+                        .toList()
+        );
     }
 
     public User login(UserLogin login) throws AuthenticationException {
@@ -91,14 +141,21 @@ public class UserService implements UserDetailsService {
                 .username(userRegister.getUsername())
                 .firstName(userRegister.getFirstName())
                 .lastName(userRegister.getLastName())
+                .bio(userRegister.getBio())
                 // TODO: change status to INITIALIZED when authentication confirmation would be created
                 .status(Status.ACTIVE)
                 .password(passwordEncoder.encode(userRegister.getPassword()))
                 .build();
 
-        Role role = userRegister.getRole() != null ?
-                roleRepository.getRoleByName(userRegister.getRole()).get() :
-                roleRepository.getRoleByName("ROLE_CUSTOMER").get();
+        Role role = publicRoles.get(0);
+        if (userRegister.getRole() != null) {
+            for (Role r : publicRoles)
+                if (Objects.equals(r.getName(), userRegister.getRole()))
+                {
+                    role = r;
+                    break;
+                }
+        }
         user.setRoles(List.of(role));
 
         return userRepository.save(user);
@@ -118,12 +175,10 @@ public class UserService implements UserDetailsService {
         String fileName = user.getAvatar();
         if (multipartFile != null) {
             fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-
             if (user.getAvatar() == null) {
                 String uploadDir = this.filesRoot + id + "/";
                 FileUtil.saveFile(uploadDir, fileName, multipartFile);
-            }
-            else {
+            } else {
                 FileUtil.updateFile(user.getAvatar(), fileName, multipartFile);
             }
         }
@@ -132,8 +187,24 @@ public class UserService implements UserDetailsService {
         user.setFirstName(userUpdate.getFirstName() != null ? userUpdate.getFirstName() : user.getFirstName());
         user.setLastName(userUpdate.getLastName() != null ? userUpdate.getLastName() : user.getLastName());
         user.setBio(userUpdate.getBio() != null ? userUpdate.getBio() : user.getBio());
+
+        List<Role> roles = user.getRoles();
+        if (userUpdate.getRoles() != null) {
+            roles = userUpdate.getRoles().stream()
+                    .map(r ->publicRoleNames.indexOf(r))
+                    .filter(i -> i != -1)
+                    .map(publicRoles::get)
+                    .toList();
+        }
+        user.setRoles(roles);
+
         user.setAvatar(fileName);
         return user;
+    }
+
+    public void delete(User user) throws IOException {
+        userRepository.delete(user);
+        FileUtil.deleteFile(user.getAvatar());
     }
 
     @Override

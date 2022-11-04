@@ -26,7 +26,4 @@ public class UserRegister {
     private String bio;
 
     private String role;
-
-    private String avatar;
-
 }

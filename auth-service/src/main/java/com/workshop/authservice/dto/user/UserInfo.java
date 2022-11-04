@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 public class UserInfo {
 
+    private Long id;
     private String email;
     private String username;
     private String firstName;
@@ -26,6 +27,7 @@ public class UserInfo {
          * Return UserInfo containing all information of provided user
          * */
         return UserInfo.builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .firstName(user.getFirstName())
