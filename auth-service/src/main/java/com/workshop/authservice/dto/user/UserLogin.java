@@ -24,8 +24,13 @@ public class UserLogin {
     private String password;
 
     @NotNull(
-            groups = DtoConfiguration.OnResponse.class
+            groups = {DtoConfiguration.OnResponse.class}
     )
-    private String token;
+    private String accessToken;
+
+    @NotNull(
+            groups = {DtoConfiguration.OnResponse.class, DtoConfiguration.OnRefreshToken.class}
+    )
+    private String refreshToken;
 
 }

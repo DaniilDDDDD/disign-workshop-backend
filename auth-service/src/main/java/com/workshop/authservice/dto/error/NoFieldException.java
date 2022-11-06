@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class NoFieldExceptionResponse {
+public class NoFieldException {
 
     private String message;
 

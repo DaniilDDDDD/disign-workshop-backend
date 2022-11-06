@@ -1,7 +1,8 @@
 package com.workshop.authservice.security;
 
 import com.google.gson.Gson;
-import com.workshop.authservice.dto.error.NoFieldExceptionResponse;
+import com.workshop.authservice.dto.error.NoFieldException;
+import io.jsonwebtoken.JwtException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,10 +47,10 @@ public class JwtTokenFilter extends GenericFilterBean {
                     (HttpServletResponse) servletResponse
             );
             filterChain.doFilter(servletRequest, servletResponse);
-        } catch (AuthenticationException e) {
+        } catch (AuthenticationException | JwtException e) {
             HttpServletResponse response = (HttpServletResponse) servletResponse;
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            NoFieldExceptionResponse errorResponse = new NoFieldExceptionResponse(e.getMessage());
+            NoFieldException errorResponse = new NoFieldException(e.getMessage());
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write(new Gson().toJson(errorResponse));

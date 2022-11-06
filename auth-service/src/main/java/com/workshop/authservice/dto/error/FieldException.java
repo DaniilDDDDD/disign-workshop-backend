@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class FieldExceptionResponse {
+public class FieldException {
 
     private String fieldName;
 

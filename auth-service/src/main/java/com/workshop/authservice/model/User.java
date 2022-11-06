@@ -33,6 +33,13 @@ public class User implements Serializable, UserDetails, OAuth2User {
     @Column(name = "password")
     private String password;
 
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    private List<Token> token;
+
+    @Column(name = "login_source")
+    @Convert(converter = LoginSource.LoginSourceConverter.class)
+    private LoginSource loginSource;
+
     @Column(name = "status")
     @Convert(converter = Status.StatusConverter.class)
     private Status status;

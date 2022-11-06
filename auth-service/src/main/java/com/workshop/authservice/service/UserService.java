@@ -3,6 +3,7 @@ package com.workshop.authservice.service;
 import com.workshop.authservice.dto.user.UserLogin;
 import com.workshop.authservice.dto.user.UserRegister;
 import com.workshop.authservice.dto.user.UserUpdate;
+import com.workshop.authservice.model.LoginSource;
 import com.workshop.authservice.model.Role;
 import com.workshop.authservice.model.Status;
 import com.workshop.authservice.model.User;
@@ -17,6 +18,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -26,19 +31,23 @@ import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService extends DefaultOAuth2UserService implements UserDetailsService {
 
     @Value("${filesRoot}")
     private String filesRoot;
 
-    @Value("#{'${publicRoles}'.split(',')}")
+    @Value("${publicRoles}")
+//    @Value("#{'${publicRoles}'.split(',')}")
     private List<String> publicRoleNames;
 
-    @Value("#{'${adminRoles}'.split(',')}")
+    @Value("${adminRoles}")
+//    @Value("#{'${adminRoles}'.split(',')}")
     private List<String> adminRoleNames;
 
     private List<Role> publicRoles;
@@ -55,6 +64,7 @@ public class UserService implements UserDetailsService {
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
 
     @PostConstruct
     private void initialization() {
@@ -77,11 +87,13 @@ public class UserService implements UserDetailsService {
                 .toList();
     }
 
+
     public User getUserByEmail(String email) throws EntityNotFoundException {
         Optional<User> user = userRepository.getUserByEmail(email);
         if (user.isEmpty()) throw new EntityNotFoundException("No user with email " + email);
         return user.get();
     }
+
 
     public User getUserById(Long id) throws EntityNotFoundException {
         Optional<User> user = userRepository.getUserById(id);
@@ -89,11 +101,13 @@ public class UserService implements UserDetailsService {
         return user.get();
     }
 
+
     public User getUserByUsername(String username) throws EntityNotFoundException {
         Optional<User> user = userRepository.getUserByUsername(username);
         if (user.isEmpty()) throw new EntityNotFoundException("No user with username " + username);
         return user.get();
     }
+
 
     public List<User> getUserWithRolesIn(List<String> roles) {
         roles = roles.stream().filter(r -> publicRoleNames.contains(r)).toList();
@@ -112,6 +126,7 @@ public class UserService implements UserDetailsService {
         );
     }
 
+
     public User login(UserLogin login) throws AuthenticationException {
 
         Optional<User> user = userRepository.getUserByEmail(login.getLogin());
@@ -128,6 +143,33 @@ public class UserService implements UserDetailsService {
     }
 
 
+    public User oauth2Login(OAuth2User userData, String provider) throws IllegalArgumentException {
+
+        LoginSource source = LoginSource.getByName(provider);
+        Map<String, Object> attributes = userData.getAttributes();
+
+        // TODO: update local user data with data recieved from provider
+
+        if (source == LoginSource.GOOGLE) {
+            Optional<User> user = userRepository.getUserByEmail((String) attributes.get("email"));
+            return user.orElseGet(
+                    () -> userRepository.save(
+                            User.builder()
+                                    .email((String) attributes.get("email"))
+                                    .username((String) attributes.get("name"))
+                                    .firstName((String) attributes.get("given_name"))
+                                    .lastName((String) attributes.get("family_name"))
+                                    .avatar((String) attributes.get("picture"))
+                                    .roles(List.of(publicRoles.get(0)))
+                                    .status(Status.ACTIVE) // using oauth2 means that user is verified
+                                    .loginSource(source)
+                                    .build()
+                    ));
+        } else
+            throw new IllegalArgumentException("Provided OAuth2 source is not available!");
+    }
+
+
     public User create(UserRegister userRegister) throws EntityExistsException {
 
         if (userRepository.existsUserByEmailOrUsername(userRegister.getEmail(), userRegister.getUsername()))
@@ -141,14 +183,14 @@ public class UserService implements UserDetailsService {
                 .bio(userRegister.getBio())
                 // TODO: change status to INITIALIZED when authentication confirmation would be created
                 .status(Status.ACTIVE)
+                .loginSource(LoginSource.LOCAL)
                 .password(passwordEncoder.encode(userRegister.getPassword()))
                 .build();
 
         Role role = publicRoles.get(0);
         if (userRegister.getRole() != null) {
             for (Role r : publicRoles)
-                if (Objects.equals(r.getName(), userRegister.getRole()))
-                {
+                if (Objects.equals(r.getName(), userRegister.getRole())) {
                     role = r;
                     break;
                 }
@@ -157,6 +199,7 @@ public class UserService implements UserDetailsService {
 
         return userRepository.save(user);
     }
+
 
     public User update(
             Long id,
@@ -172,6 +215,7 @@ public class UserService implements UserDetailsService {
         user.setLastName(userUpdate.getLastName() != null ? userUpdate.getLastName() : user.getLastName());
         user.setBio(userUpdate.getBio() != null ? userUpdate.getBio() : user.getBio());
 
+        // If new avatar image is null set null into entity, else override image.
         String fileName = user.getAvatar();
         if (userUpdate.getAvatar() != null) {
             fileName = StringUtils.cleanPath(userUpdate.getAvatar().getOriginalFilename());
@@ -189,10 +233,12 @@ public class UserService implements UserDetailsService {
         }
         user.setAvatar(fileName);
 
+        // If new list of roles contains admin roles discard them.
+        // If result list is empty set all public roles into entity.
         List<Role> roles = user.getRoles();
         if (userUpdate.getRoles() != null) {
             roles = userUpdate.getRoles().stream()
-                    .map(r ->publicRoleNames.indexOf(r))
+                    .map(r -> publicRoleNames.indexOf(r))
                     .filter(i -> i != -1)
                     .map(publicRoles::get)
                     .toList();
@@ -202,12 +248,14 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+
     @Transactional
     public void delete(User user) throws IOException {
         if (user.getAvatar() != null)
             FileUtil.deleteFile(user.getAvatar());
         userRepository.delete(user);
     }
+
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

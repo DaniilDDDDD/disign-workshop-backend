@@ -1,48 +1,54 @@
 package com.workshop.authservice.security;
 
 import com.workshop.authservice.model.Role;
+import com.workshop.authservice.model.Token;
+import com.workshop.authservice.model.TokenType;
+import com.workshop.authservice.model.User;
+import com.workshop.authservice.service.TokenService;
 import com.workshop.authservice.service.UserService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.token.secret}")
+    @Value("${jwt.access-token.secret}")
     private String secret;
 
     private Key key;
 
-    @Value("${jwt.token.expired}")
-    private long validityInMilliseconds;
+    @Value("${jwt.access-token.expired}")
+    private long accessTokenValidityInMilliseconds;
+
+    @Value("${jwt.refresh-token.expired}")
+    private long refreshTokenValidityInMilliseconds;
 
     private final UserService userService;
 
+    private final TokenService tokenService;
+
     @Autowired
-    public JwtTokenProvider(UserService userService) {
+    public JwtTokenProvider(UserService userService, TokenService tokenService, TokenService tokenService1) {
         this.userService = userService;
+        this.tokenService = tokenService1;
     }
 
     @PostConstruct
@@ -51,24 +57,57 @@ public class JwtTokenProvider {
         key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createToken(
+    public String createAccessToken(
             String email,
             Collection<? extends GrantedAuthority> roles
     ) throws JwtException {
 
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("roles", roles);
+
         Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds);
+        Date expirationDate = new Date(now.getTime() + accessTokenValidityInMilliseconds);
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(validity)
+                .setExpiration(expirationDate)
                 .signWith(
                         key,
                         SignatureAlgorithm.HS256
                 )
                 .compact();
+    }
+
+
+    public String createRefreshToken(User owner) {
+        String token = UUID.randomUUID().toString();
+        tokenService.create(
+                owner,
+                token,
+                new Date(new Date().getTime() + refreshTokenValidityInMilliseconds),
+                TokenType.REFRESH
+        );
+        return token;
+    }
+
+    public String refreshToken(
+            String refreshToken
+    ) throws JwtException, EntityNotFoundException {
+
+        Token token = tokenService.getTokenByValue(refreshToken);
+
+        if (token.getExpirationDate().before(new Date()))
+            throw new AccessDeniedException(
+                    "Refresh token expired! Please, login again to get new refresh and access tokens!");
+
+        User user = token.getOwner();
+
+        String newToken = createAccessToken(
+                user.getEmail(),
+                user.getAuthorities()
+        );
+
+        return newToken;
     }
 
     public Authentication getAuthentication(String token) throws UsernameNotFoundException {

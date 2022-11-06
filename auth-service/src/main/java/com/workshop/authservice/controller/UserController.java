@@ -7,6 +7,7 @@ import com.workshop.authservice.dto.user.UserRegister;
 import com.workshop.authservice.dto.user.UserUpdate;
 import com.workshop.authservice.model.User;
 import com.workshop.authservice.security.JwtTokenProvider;
+import com.workshop.authservice.service.TokenService;
 import com.workshop.authservice.service.UserService;
 import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,9 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
@@ -29,7 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("")
 @Tag(name = "User", description = "Users' endpoints")
 public class UserController {
 
@@ -54,15 +55,41 @@ public class UserController {
                     UserLogin userLogin
     ) throws AuthenticationException, JwtException {
         User user = userService.login(userLogin);
-        String token = jwtTokenProvider.createToken(
+        String accessToken = jwtTokenProvider.createAccessToken(
                 user.getEmail(),
                 user.getAuthorities()
         );
+        String refreshToken = jwtTokenProvider.createRefreshToken(user);
         return ResponseEntity.ok().body(
                 UserLogin.builder()
                         .login(user.getEmail())
-                        .token(token)
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
                         .build()
+        );
+    }
+
+
+    @PostMapping("/refresh")
+    @Operation(
+            summary = "Refresh token",
+            description = "Refresh user's access token using refresh token."
+    )
+    public ResponseEntity<UserLogin> refresh(
+            @Validated({DtoConfiguration.OnRefreshToken.class})
+            @RequestBody
+                    UserLogin userLogin
+    ) throws JwtException, AuthenticationException, EntityNotFoundException {
+        return new ResponseEntity<>(
+                UserLogin.builder()
+                        .accessToken(
+                                jwtTokenProvider.refreshToken(
+                                        userLogin.getRefreshToken()
+                                )
+                        )
+                        .refreshToken(userLogin.getRefreshToken())
+                        .build(),
+                HttpStatus.OK
         );
     }
 
@@ -148,7 +175,6 @@ public class UserController {
                     UserUpdate userUpdate,
             Authentication authentication
     ) throws IOException {
-
         Long id = ((User) authentication.getPrincipal()).getId();
 
         User user = userService.update(id, userUpdate);

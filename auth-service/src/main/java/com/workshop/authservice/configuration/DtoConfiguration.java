@@ -6,4 +6,6 @@ public class DtoConfiguration {
 
     public interface OnResponse {};
 
+    public interface OnRefreshToken {};
+
 }

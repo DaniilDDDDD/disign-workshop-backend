@@ -20,6 +20,7 @@ public class UserInfo {
     private String status;
     private String bio;
     private String avatar;
+    private String loginSource;
     private List<String> roles;
 
     public static UserInfo parseUser(User user) {
@@ -34,6 +35,7 @@ public class UserInfo {
                 .lastName(user.getLastName())
                 .bio(user.getBio())
                 .avatar(user.getAvatar())
+                .loginSource(user.getLoginSource().getName())
                 .roles(user.getRoles().stream().map(Role::getName).toList())
                 .status(user.getStatus().getName())
                 .build();
