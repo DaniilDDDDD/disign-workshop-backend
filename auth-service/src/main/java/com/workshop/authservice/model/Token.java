@@ -30,7 +30,7 @@ public class Token implements Serializable {
     @Convert(converter = TokenType.TokenConverter.class)
     private TokenType type;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "owner", nullable = false)
     private User owner;
 

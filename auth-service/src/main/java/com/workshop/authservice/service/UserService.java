@@ -147,6 +147,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 
         LoginSource source = LoginSource.getByName(provider);
         Map<String, Object> attributes = userData.getAttributes();
+        System.out.println(attributes);
 
         // TODO: update local user data with data recieved from provider
 

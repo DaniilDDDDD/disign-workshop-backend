@@ -55,10 +55,7 @@ public class UserController {
                     UserLogin userLogin
     ) throws AuthenticationException, JwtException {
         User user = userService.login(userLogin);
-        String accessToken = jwtTokenProvider.createAccessToken(
-                user.getEmail(),
-                user.getAuthorities()
-        );
+        String accessToken = jwtTokenProvider.createAccessToken(user);
         String refreshToken = jwtTokenProvider.createRefreshToken(user);
         return ResponseEntity.ok().body(
                 UserLogin.builder()

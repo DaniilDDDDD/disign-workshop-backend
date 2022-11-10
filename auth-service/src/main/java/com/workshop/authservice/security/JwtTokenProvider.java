@@ -46,9 +46,9 @@ public class JwtTokenProvider {
     private final TokenService tokenService;
 
     @Autowired
-    public JwtTokenProvider(UserService userService, TokenService tokenService, TokenService tokenService1) {
+    public JwtTokenProvider(UserService userService, TokenService tokenService) {
         this.userService = userService;
-        this.tokenService = tokenService1;
+        this.tokenService = tokenService;
     }
 
     @PostConstruct
@@ -57,13 +57,13 @@ public class JwtTokenProvider {
         key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
+
     public String createAccessToken(
-            String email,
-            Collection<? extends GrantedAuthority> roles
+            User user
     ) throws JwtException {
 
-        Claims claims = Jwts.claims().setSubject(email);
-        claims.put("roles", roles);
+        Claims claims = Jwts.claims().setSubject(user.getEmail());
+        claims.put("roles", user.getAuthorities());
 
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + accessTokenValidityInMilliseconds);
@@ -90,6 +90,7 @@ public class JwtTokenProvider {
         return token;
     }
 
+
     public String refreshToken(
             String refreshToken
     ) throws JwtException, EntityNotFoundException {
@@ -102,13 +103,9 @@ public class JwtTokenProvider {
 
         User user = token.getOwner();
 
-        String newToken = createAccessToken(
-                user.getEmail(),
-                user.getAuthorities()
-        );
-
-        return newToken;
+        return createAccessToken(user);
     }
+
 
     public Authentication getAuthentication(String token) throws UsernameNotFoundException {
         UserDetails user = userService.loadUserByUsername(getEmail(token));
@@ -117,12 +114,14 @@ public class JwtTokenProvider {
         );
     }
 
+
     public String getEmail(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key).build()
                 .parseClaimsJws(token)
                 .getBody().getSubject();
     }
+
 
     public String resolveToken(HttpServletRequest request) {
         String bearer_token = request.getHeader("Authorization");
@@ -131,6 +130,7 @@ public class JwtTokenProvider {
         }
         return null;
     }
+
 
     public boolean validateToken(String token) throws JwtException {
         try {
@@ -142,6 +142,7 @@ public class JwtTokenProvider {
             throw new JwtException("Jwt token is expired or invalid!");
         }
     }
+
 
     private List<String> getRoleNames(List<Role> roles) {
         return roles.stream().map(Role::getName).collect(Collectors.toList());

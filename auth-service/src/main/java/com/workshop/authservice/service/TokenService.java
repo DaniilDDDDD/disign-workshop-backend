@@ -32,10 +32,14 @@ public class TokenService {
         return token.get();
     }
 
+
     public Token create(User owner, String value, Date expirationDate, TokenType type) throws EntityExistsException {
 
         if (tokenRepository.existsTokenByValue(value))
             throw new EntityExistsException("Token with provided value already exists!");
+
+        // delete all old refresh tokens of provided user
+        tokenRepository.deleteAllByOwnerIdAndType(owner.getId(), TokenType.REFRESH);
 
         return tokenRepository.save(
                 Token.builder()
@@ -47,10 +51,10 @@ public class TokenService {
         );
     }
 
+
     public Token update(String value, Token token) {
         token.setValue(value);
         return tokenRepository.save(token);
     }
-
 
 }

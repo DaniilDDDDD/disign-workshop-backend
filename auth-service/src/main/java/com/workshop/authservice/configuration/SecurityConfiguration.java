@@ -39,7 +39,7 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
+        return http
                     .httpBasic().disable()
                     .csrf().disable()
                     .sessionManagement()
@@ -66,10 +66,10 @@ public class SecurityConfiguration {
                             .userInfoEndpoint()
                             .userService(userService)
                         .and()
-                            .successHandler(successHandler);
-//                .failureHandler();
+                            .successHandler(successHandler)
+//                            .failureHandler()
+                .and().build();
 
-        return http.build();
     }
 
 }
