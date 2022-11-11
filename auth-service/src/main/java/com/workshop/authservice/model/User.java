@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import javax.persistence.*;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @Setter
 @Builder
 @AllArgsConstructor
-public class User implements Serializable, UserDetails, OAuth2User {
+public class User implements Serializable, UserDetails {
 
     @Id
     @Column(name = "id")
@@ -102,22 +103,24 @@ public class User implements Serializable, UserDetails, OAuth2User {
         return status != Status.INITIALIZED;
     }
 
-    @Override
-    public String getName() {
-        return this.email;
-    }
+//    @Override
+//    public String getName() {
+//        return this.email;
+//    }
+//
+//    @Override
+//    public Map<String, Object> getAttributes() {
+//        Map<String, Object> attributes = new HashMap<>();
+//        attributes.put("username", this.username);
+//        attributes.put("email", this.email);
+//        attributes.put("firstName", this.firstName);
+//        attributes.put("lastName", this.lastName);
+//        attributes.put("roles", this.roles);
+//        attributes.put("status", this.status);
+//        attributes.put("bio", this.bio);
+//        attributes.put("avatar", this.avatar);
+//        return attributes;
+//    }
 
-    @Override
-    public Map<String, Object> getAttributes() {
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put("username", this.username);
-        attributes.put("email", this.email);
-        attributes.put("firstName", this.firstName);
-        attributes.put("lastName", this.lastName);
-        attributes.put("roles", this.roles);
-        attributes.put("status", this.status);
-        attributes.put("bio", this.bio);
-        attributes.put("avatar", this.avatar);
-        return attributes;
-    }
+
 }

@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -116,10 +117,11 @@ public class UserController {
     )
     public ResponseEntity<UserInfo> me(
             Authentication authentication
-    ) throws EntityExistsException {
-        User user = userService.getUserByEmail(((User) authentication.getPrincipal()).getEmail());
+    ) throws EntityNotFoundException {
         return ResponseEntity.ok().body(
-                UserInfo.parseUser(user)
+                UserInfo.parseUser(
+                        userService.getUserByPrincipal(authentication.getPrincipal())
+                )
         );
     }
 
@@ -171,8 +173,8 @@ public class UserController {
             @ModelAttribute
                     UserUpdate userUpdate,
             Authentication authentication
-    ) throws IOException {
-        Long id = ((User) authentication.getPrincipal()).getId();
+    ) throws IOException, EntityNotFoundException {
+        Long id = (userService.getUserByPrincipal(authentication.getPrincipal())).getId();
 
         User user = userService.update(id, userUpdate);
 
@@ -190,7 +192,7 @@ public class UserController {
     public ResponseEntity<String> delete(
             Authentication authentication
     ) throws IOException {
-        User user = (User) authentication.getPrincipal();
+        User user = userService.getUserByPrincipal(authentication.getPrincipal());
         userService.delete(user);
         return ResponseEntity.noContent().build();
     }

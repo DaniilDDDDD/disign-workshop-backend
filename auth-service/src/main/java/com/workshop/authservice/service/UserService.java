@@ -21,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -85,6 +86,13 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
                     return role.get();
                 })
                 .toList();
+    }
+
+
+    public User getUserByPrincipal(Object principal) throws EntityNotFoundException {
+        if (principal.getClass().equals(User.class))
+            return (User) principal;
+        return getUserByEmail(((DefaultOAuth2User) principal).getAttribute("email"));
     }
 
 
