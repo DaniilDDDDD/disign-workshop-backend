@@ -1,5 +1,9 @@
 package com.workshop.authservice.handler;
 
+import com.google.gson.Gson;
+import com.workshop.authservice.dto.user.UserLogin;
+import com.workshop.authservice.model.User;
+import com.workshop.authservice.security.JwtTokenProvider;
 import com.workshop.authservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -11,19 +15,17 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
 
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public OAuth2SuccessHandler(UserService userService) {
+    public OAuth2SuccessHandler(UserService userService, JwtTokenProvider jwtTokenProvider) {
         this.userService = userService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -32,10 +34,27 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             HttpServletResponse response,
             Authentication authentication
     ) throws IOException, ServletException {
+
         String[] url = request.getRequestURI().split("/");
-        userService.oauth2Login(
+
+        User user = userService.oauth2Login(
                 (OAuth2User) authentication.getPrincipal(),
                 url[url.length - 1]
         );
+
+        String accessToken = jwtTokenProvider.createAccessToken(user);
+        String refreshToken = jwtTokenProvider.createRefreshToken(user);
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(new Gson().toJson(
+                UserLogin.builder()
+                        .login(user.getEmail())
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build())
+        );
+        response.getWriter().flush();
     }
 }

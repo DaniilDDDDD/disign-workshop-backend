@@ -39,7 +39,7 @@ public class TokenService {
             throw new EntityExistsException("Token with provided value already exists!");
 
         // delete all old refresh tokens of provided user
-        tokenRepository.deleteAllByOwnerIdAndType(owner.getId(), TokenType.REFRESH);
+        tokenRepository.deleteAllByOwnerIdAndType(owner.getId(), type);
 
         return tokenRepository.save(
                 Token.builder()

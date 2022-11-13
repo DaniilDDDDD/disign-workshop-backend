@@ -155,25 +155,32 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 
         LoginSource source = LoginSource.getByName(provider);
         Map<String, Object> attributes = userData.getAttributes();
-        System.out.println(attributes);
+//        System.out.println(attributes);
 
         // TODO: update local user data with data recieved from provider
 
         if (source == LoginSource.GOOGLE) {
-            Optional<User> user = userRepository.getUserByEmail((String) attributes.get("email"));
-            return user.orElseGet(
-                    () -> userRepository.save(
-                            User.builder()
-                                    .email((String) attributes.get("email"))
-                                    .username((String) attributes.get("name"))
-                                    .firstName((String) attributes.get("given_name"))
-                                    .lastName((String) attributes.get("family_name"))
-                                    .avatar((String) attributes.get("picture"))
-                                    .roles(List.of(publicRoles.get(0)))
-                                    .status(Status.ACTIVE) // using oauth2 means that user is verified
-                                    .loginSource(source)
-                                    .build()
-                    ));
+            Optional<User> principal = userRepository.getUserByEmail((String) attributes.get("email"));
+
+            if (principal.isEmpty())
+                return userRepository.save(
+                        User.builder()
+                                .email((String) attributes.get("email"))
+                                .username((String) attributes.get("name"))
+                                .firstName((String) attributes.get("given_name"))
+                                .lastName((String) attributes.get("family_name"))
+                                .avatar((String) attributes.get("picture"))
+                                .roles(List.of(publicRoles.get(0)))
+                                .status(Status.ACTIVE) // using oauth2 means that user is verified
+                                .loginSource(source)
+                                .build());
+
+            User user = principal.get();
+            user.setUsername((String) attributes.get("name"));
+            user.setFirstName((String) attributes.get("given_name"));
+            user.setLastName((String) attributes.get("family_name"));
+            return userRepository.save(user);
+
         } else
             throw new IllegalArgumentException("Provided OAuth2 source is not available!");
     }
