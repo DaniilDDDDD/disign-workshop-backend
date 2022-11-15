@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -22,19 +23,7 @@ import java.util.stream.Collectors;
 public class ErrorHandlerControllerAdvice {
 
 
-    @ExceptionHandler({
-            MethodArgumentNotValidException.class,
-    })
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public FieldException onConstraintValidationException(
-            MethodArgumentNotValidException e
-    ) {
-        return new FieldException(
-                e.getParameter().getParameterName(),
-                e.getMessage()
-        );
-    }
+    // BAD_REQUEST handlers
 
 
     @ExceptionHandler({
@@ -57,8 +46,24 @@ public class ErrorHandlerControllerAdvice {
 
 
     @ExceptionHandler({
+            MethodArgumentNotValidException.class,
+    })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public FieldException onConstraintValidationException(
+            MethodArgumentNotValidException e
+    ) {
+        return new FieldException(
+                e.getParameter().getParameterName(),
+                e.getMessage()
+        );
+    }
+
+
+    @ExceptionHandler({
             JwtException.class,
-            AuthenticationException.class
+            AuthenticationException.class,
+            PersistenceException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -71,46 +76,33 @@ public class ErrorHandlerControllerAdvice {
     }
 
 
+    // FORBIDDEN handlers
+
+
     @ExceptionHandler({
             AccessDeniedException.class
     })
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
-    public FieldException onAccessDeniedException(
+    public NoFieldException onAccessDeniedException(
             Exception e
     ) {
-        return new FieldException(
-                "Authorization",
-                e.getMessage()
-        );
+        return new NoFieldException(e.getMessage());
     }
 
 
-    @ExceptionHandler({
-            NoSuchAlgorithmException.class,
-            InvalidKeySpecException.class
-    })
+    // INTERNAL_SERVER_ERROR handlers
+
+
+    @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public FieldException onAuthenticationAndAccessDeniedException(
+    public NoFieldException onException(
             Exception e
     ) {
-        return new FieldException(
-                "Authorization",
+        return new NoFieldException(
                 e.getMessage()
         );
     }
-
-
-//    @ExceptionHandler(Exception.class)
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    @ResponseBody
-//    public NoFieldException onException(
-//            Exception e
-//    ) {
-//        return new NoFieldException(
-//                e.getMessage()
-//        );
-//    }
 
 }

@@ -1,5 +1,6 @@
 package com.workshop.authservice.configuration;
 
+import com.workshop.authservice.handler.OAuth2FailureHandler;
 import com.workshop.authservice.handler.OAuth2SuccessHandler;
 import com.workshop.authservice.security.JwtFilterChainConfigurer;
 import com.workshop.authservice.security.JwtTokenProvider;
@@ -10,7 +11,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.web.SecurityFilterChain;
 
 @EnableWebSecurity
@@ -24,17 +24,19 @@ public class SecurityConfiguration {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
     private final OAuth2SuccessHandler successHandler;
+    private final OAuth2FailureHandler failureHandler;
 
 
     @Autowired
     public SecurityConfiguration(
             JwtTokenProvider jwtTokenProvider,
             UserService userService,
-            OAuth2SuccessHandler successHandler
-    ) {
+            OAuth2SuccessHandler successHandler,
+            OAuth2FailureHandler failureHandler) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
         this.successHandler = successHandler;
+        this.failureHandler = failureHandler;
     }
 
     @Bean
@@ -51,8 +53,6 @@ public class SecurityConfiguration {
                         .antMatchers("/").permitAll() //login page to test API
                         .antMatchers("/docs/**").hasAnyRole("ROLE_DEVELOPER", "ROLE_ADMIN")
                     .anyRequest().authenticated()
-//                .and()
-//                    .formLogin().permitAll()
                 .and()
                     .apply(new JwtFilterChainConfigurer(jwtTokenProvider))
                 .and()
@@ -67,7 +67,7 @@ public class SecurityConfiguration {
                             .userService(userService)
                         .and()
                             .successHandler(successHandler)
-//                            .failureHandler()
+                            .failureHandler(failureHandler)
                 .and().build();
 
     }

@@ -19,8 +19,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -35,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 public class UserService extends DefaultOAuth2UserService implements UserDetailsService {
@@ -44,11 +41,9 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
     private String filesRoot;
 
     @Value("${publicRoles}")
-//    @Value("#{'${publicRoles}'.split(',')}")
     private List<String> publicRoleNames;
 
     @Value("${adminRoles}")
-//    @Value("#{'${adminRoles}'.split(',')}")
     private List<String> adminRoleNames;
 
     private List<Role> publicRoles;
@@ -155,9 +150,6 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 
         LoginSource source = LoginSource.getByName(provider);
         Map<String, Object> attributes = userData.getAttributes();
-//        System.out.println(attributes);
-
-        // TODO: update local user data with data recieved from provider
 
         if (source == LoginSource.GOOGLE) {
             Optional<User> principal = userRepository.getUserByEmail((String) attributes.get("email"));
@@ -175,6 +167,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
                                 .loginSource(source)
                                 .build());
 
+            // update user with provided data
             User user = principal.get();
             user.setUsername((String) attributes.get("name"));
             user.setFirstName((String) attributes.get("given_name"));
@@ -183,6 +176,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 
         } else
             throw new IllegalArgumentException("Provided OAuth2 source is not available!");
+
     }
 
 
@@ -221,6 +215,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
             Long id,
             UserUpdate userUpdate
     ) throws IOException {
+
         Optional<User> userData = userRepository.getUserById(id);
         if (userData.isEmpty()) throw new EntityNotFoundException("User with id " + id + "not found!");
 

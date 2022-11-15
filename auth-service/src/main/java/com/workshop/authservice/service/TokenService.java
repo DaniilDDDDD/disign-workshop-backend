@@ -22,8 +22,8 @@ public class TokenService {
         this.tokenRepository = tokenRepository;
     }
 
-    public boolean tokenExistByValue(String value) {
-        return tokenRepository.existsTokenByValue(value);
+    public Optional<Token> getOptionalTokenByValue(String value) {
+        return tokenRepository.getTokenByValue(value);
     }
 
     public Token getTokenByValue(String value) throws EntityNotFoundException {
@@ -33,12 +33,13 @@ public class TokenService {
     }
 
 
-    public Token create(User owner, String value, Date expirationDate, TokenType type) throws EntityExistsException {
+    public Token create(
+            User owner, String value, Date expirationDate, TokenType type
+    ) throws EntityExistsException {
 
         if (tokenRepository.existsTokenByValue(value))
             throw new EntityExistsException("Token with provided value already exists!");
 
-        // delete all old refresh tokens of provided user
         tokenRepository.deleteAllByOwnerIdAndType(owner.getId(), type);
 
         return tokenRepository.save(

@@ -7,7 +7,6 @@ import com.workshop.authservice.dto.user.UserRegister;
 import com.workshop.authservice.dto.user.UserUpdate;
 import com.workshop.authservice.model.User;
 import com.workshop.authservice.security.JwtTokenProvider;
-import com.workshop.authservice.service.TokenService;
 import com.workshop.authservice.service.UserService;
 import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,9 +14,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,7 +53,7 @@ public class UserController {
             @Validated({DtoConfiguration.OnRequest.class})
             @RequestBody
                     UserLogin userLogin
-    ) throws AuthenticationException, JwtException {
+    ) throws AuthenticationException, JwtException, EntityExistsException {
         User user = userService.login(userLogin);
         String accessToken = jwtTokenProvider.createAccessToken(user);
         String refreshToken = jwtTokenProvider.createRefreshToken(user);
@@ -77,7 +76,7 @@ public class UserController {
             @Validated({DtoConfiguration.OnRefreshToken.class})
             @RequestBody
                     UserLogin userLogin
-    ) throws JwtException, AuthenticationException, EntityNotFoundException {
+    ) throws BadCredentialsException {
         return new ResponseEntity<>(
                 UserLogin.builder()
                         .accessToken(

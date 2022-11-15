@@ -11,16 +11,16 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityNotFoundException;
+import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -79,7 +79,7 @@ public class JwtTokenProvider {
     }
 
 
-    public String createRefreshToken(User owner) {
+    public String createRefreshToken(User owner) throws EntityExistsException {
         String token = UUID.randomUUID().toString();
         tokenService.create(
                 owner,
@@ -91,17 +91,15 @@ public class JwtTokenProvider {
     }
 
 
-    public String refreshToken(
-            String refreshToken
-    ) throws JwtException, EntityNotFoundException {
+    public String refreshToken(String refreshToken) throws AuthenticationException {
 
-        Token token = tokenService.getTokenByValue(refreshToken);
+        Optional<Token> token = tokenService.getOptionalTokenByValue(refreshToken);
 
-        if (token.getExpirationDate().before(new Date()))
-            throw new AccessDeniedException(
-                    "Refresh token expired! Please, login again to get new refresh and access tokens!");
+        if (token.isEmpty() || token.get().getExpirationDate().before(new Date()))
+            throw new BadCredentialsException(
+                    "Refresh token is invalid or expired! Please, login again to get new refresh and access tokens!");
 
-        User user = token.getOwner();
+        User user = token.get().getOwner();
 
         return createAccessToken(user);
     }
