@@ -38,6 +38,6 @@ public enum Status {
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
         }
-    };
+    }
 
 }

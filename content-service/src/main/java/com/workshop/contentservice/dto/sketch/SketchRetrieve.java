@@ -1,0 +1,54 @@
+package com.workshop.contentservice.dto.sketch;
+
+import com.workshop.contentservice.document.Access;
+import com.workshop.contentservice.document.File;
+import com.workshop.contentservice.document.Sketch;
+import com.workshop.contentservice.document.Tag;
+import com.workshop.contentservice.repository.SketchRepository;
+import lombok.Builder;
+import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
+
+@Data
+@Builder
+public class SketchRetrieve {
+
+    private String id;
+    private Long author;
+    private String authorName;
+    private Access access;
+    private List<Tag> tags;
+    private Date publicationDate;
+    private String name;
+    private String description;
+    private List<File> files;
+
+    public static SketchRetrieve parseSketchPublic(Sketch sketch) {
+        return SketchRetrieve.builder()
+                .id(sketch.getId())
+                .authorName(sketch.getAuthorName())
+                .tags(sketch.getTags())
+                .publicationDate(sketch.getPublicationDate())
+                .name(sketch.getName())
+                .description(sketch.getDescription())
+                .files(sketch.getFiles())
+                .build();
+    }
+
+    public static SketchRetrieve parseSketchPrivate(Sketch sketch) {
+        return SketchRetrieve.builder()
+                .id(sketch.getId())
+                .author(sketch.getAuthor())
+                .authorName(sketch.getAuthorName())
+                .access(sketch.getAccess())
+                .tags(sketch.getTags())
+                .publicationDate(sketch.getPublicationDate())
+                .name(sketch.getName())
+                .description(sketch.getDescription())
+                .files(sketch.getFiles())
+                .build();
+    }
+
+}
