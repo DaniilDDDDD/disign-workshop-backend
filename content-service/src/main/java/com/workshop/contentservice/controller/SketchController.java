@@ -1,19 +1,21 @@
 package com.workshop.contentservice.controller;
 
+import com.workshop.contentservice.document.Access;
+import com.workshop.contentservice.document.Sketch;
 import com.workshop.contentservice.dto.sketch.SketchRetrieve;
 import com.workshop.contentservice.service.SketchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.Min;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("sketch/")
@@ -30,37 +32,33 @@ public class SketchController {
     @GetMapping("")
     @Operation(
             summary = "List sketches",
-            description = "Get all sketches by tags"
+            description = "Get all sketches by tags or name"
     )
     public ResponseEntity<List<SketchRetrieve>> list(
             @Min(value = 0)
             @RequestParam(value = "page", defaultValue = "0")
-                    int page,
+            int page,
             @Min(value = 1)
             @RequestParam(value = "size", defaultValue = "9")
-                    int size,
+            int size,
             @RequestParam(value = "sort", defaultValue = "publicationDate")
-                    String sort,
+            String sort,
             @RequestParam(value = "tags", required = false)
-                    List<String> tags,
+            List<String> tags,
             @RequestParam(value = "name", required = false) // lookup by name is executed by every word
-                    List<String> name
+            List<String> name
     ) throws EntityNotFoundException {
 
         if (tags == null && name == null)
             return ResponseEntity.ok(
-                    sketchService.findAllPublic(page, size, sort).stream().map(
+                    sketchService.findAllPublic(
+                            page, size, sort
+                    ).stream().map(
                             SketchRetrieve::parseSketchPublic
                     ).toList()
             );
 
         if (tags == null) {
-            if (name.size() == 1)
-                return ResponseEntity.ok(
-                        List.of(SketchRetrieve.parseSketchPublic(
-                                sketchService.findByNamePublic(name.get(0))
-                        ))
-                );
             return ResponseEntity.ok(
                     sketchService.findAllPublicByNameContains(
                             name, page, size, sort
@@ -68,8 +66,7 @@ public class SketchController {
                             SketchRetrieve::parseSketchPublic
                     ).toList()
             );
-        }
-        else
+        } else
             return ResponseEntity.ok(
                     sketchService.findAllPublicByTagContains(
                             tags, page, size, sort
@@ -79,4 +76,36 @@ public class SketchController {
             );
     }
 
+    @GetMapping("sketch/{id}")
+    @Operation(
+            summary = "Retrieve sketch",
+            description = "Get sketch by id"
+    )
+    public ResponseEntity<SketchRetrieve> retrieve(
+            @PathVariable(name = "id")
+            String id,
+            Authentication authentication
+    ) throws EntityNotFoundException {
+        Sketch sketch = sketchService.findPublicById(id);
+
+        if (sketch.getAuthor() == authentication.getPrincipal())
+            return ResponseEntity.ok(
+                    SketchRetrieve.parseSketchPrivate(sketch)
+            );
+        if (sketch.getAccess() == Access.PUBLIC)
+            return ResponseEntity.ok(
+                    SketchRetrieve.parseSketchPublic(sketch));
+        throw new EntityNotFoundException("Sketch with provided id not found!");
+    }
+
+    @GetMapping("sketch/me")
+    @Operation(
+            summary = "List principal's sketches",
+            description = "List all sketches of request sender"
+    )
+    public ResponseEntity<SketchRetrieve> me (
+            Authentication authentication
+    ) {
+
+    }
 }

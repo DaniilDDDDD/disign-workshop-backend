@@ -24,8 +24,8 @@ public class Sketch implements Serializable {
     @Id
     private String id;
 
-    @NotNull(message = "Owner (id) must be provided!")
-    private Long author;
+    @NotNull(message = "Owner email must be provided!")
+    private String author;
 
     @NotNull(message = "Owner name must be provided!")
     private String authorName;
