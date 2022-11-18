@@ -15,9 +15,12 @@ import java.util.Optional;
 public interface SketchRepository extends MongoRepository<Sketch, String> {
 
     Page<Sketch> findAllByAccess(Access access, Pageable pageable);
-    Page<Sketch> findAllByAuthorAndAccess(String author, Access access, Pageable pageable);
 
-    Page<Sketch> findAllByNameAndAccess(String name, Access access, Pageable pageable);
+    Page<Sketch> findAllByAuthorEmail(String authorEmail, Pageable pageable);
+
+    Optional<Sketch> findByName(String name);
+
+    Optional<Sketch> findAllByNameAndAccess(String name, Access access, Pageable pageable);
 
     Page<Sketch> findAllByNameContainsAndAccess(List<String> name, Access access, Pageable pageable);
 

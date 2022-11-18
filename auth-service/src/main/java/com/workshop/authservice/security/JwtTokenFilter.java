@@ -39,13 +39,14 @@ public class JwtTokenFilter extends GenericFilterBean {
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
 
-                if (authentication != null) {
+                if (authentication != null)
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
             }
+
             ContentCachingResponseWrapper responseCacheWrapperObject = new ContentCachingResponseWrapper(
                     (HttpServletResponse) servletResponse
             );
+
             filterChain.doFilter(servletRequest, servletResponse);
 
         } catch (AuthenticationException | JwtException e) {

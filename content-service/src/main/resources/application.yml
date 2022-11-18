@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: /v1/api/content/
+    context-path: /v1/api/content
 
 
 spring:
@@ -20,6 +20,7 @@ spring:
 
 
 filesRoot: auth-service/src/main/resources/media/content/
+maxFilesAmount: 15
 
 jwt:
   access-token:

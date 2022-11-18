@@ -4,7 +4,6 @@ import com.workshop.contentservice.document.Access;
 import com.workshop.contentservice.document.File;
 import com.workshop.contentservice.document.Sketch;
 import com.workshop.contentservice.document.Tag;
-import com.workshop.contentservice.repository.SketchRepository;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,7 +15,7 @@ import java.util.List;
 public class SketchRetrieve {
 
     private String id;
-    private Long author;
+    private String authorEmail;
     private String authorName;
     private Access access;
     private List<Tag> tags;
@@ -40,7 +39,7 @@ public class SketchRetrieve {
     public static SketchRetrieve parseSketchPrivate(Sketch sketch) {
         return SketchRetrieve.builder()
                 .id(sketch.getId())
-                .author(sketch.getAuthor())
+                .authorEmail(sketch.getAuthorEmail())
                 .authorName(sketch.getAuthorName())
                 .access(sketch.getAccess())
                 .tags(sketch.getTags())

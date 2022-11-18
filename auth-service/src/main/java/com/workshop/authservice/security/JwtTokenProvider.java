@@ -10,7 +10,6 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -64,6 +63,7 @@ public class JwtTokenProvider {
 
         Claims claims = Jwts.claims().setSubject(user.getEmail());
         claims.put("roles", user.getAuthorities());
+        claims.put("username", user.getUsername());
 
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + accessTokenValidityInMilliseconds);

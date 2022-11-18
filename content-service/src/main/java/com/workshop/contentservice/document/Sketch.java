@@ -4,7 +4,7 @@ package com.workshop.contentservice.document;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
@@ -25,7 +25,7 @@ public class Sketch implements Serializable {
     private String id;
 
     @NotNull(message = "Owner email must be provided!")
-    private String author;
+    private String authorEmail;
 
     @NotNull(message = "Owner name must be provided!")
     private String authorName;
@@ -41,11 +41,12 @@ public class Sketch implements Serializable {
     private Date publicationDate;
 
     @NotNull(message = "Name must be provided!")
+    @Indexed(unique = true)
     private String name;
 
     private String description;
 
-    @DBRef
-    private List<File> files;
+
+    private List<String> files;
 
 }

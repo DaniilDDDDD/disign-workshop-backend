@@ -3,6 +3,7 @@ package com.workshop.contentservice.document;
 import lombok.Getter;
 
 import javax.persistence.AttributeConverter;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Getter
@@ -36,6 +37,12 @@ public enum Access {
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
         }
+    }
+
+    public static Access getByName(String name) throws IllegalArgumentException {
+        for (Access access : Access.values())
+            if (Objects.equals(access.getName(), name)) return access;
+        throw new IllegalArgumentException("Access with provided name does not exist!");
     }
 
 }
