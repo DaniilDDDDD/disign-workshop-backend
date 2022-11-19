@@ -35,7 +35,6 @@ public class SketchService {
 
     private final SketchRepository sketchRepository;
     private final TagRepository tagRepository;
-    private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
     public SketchService(
@@ -44,7 +43,6 @@ public class SketchService {
             JwtTokenProvider jwtTokenProvider) {
         this.sketchRepository = sketchRepository;
         this.tagRepository = tagRepository;
-        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     public List<Sketch> findAllPublic(int page, int size, String sort) {
