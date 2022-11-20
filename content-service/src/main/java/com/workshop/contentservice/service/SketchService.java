@@ -123,7 +123,7 @@ public class SketchService {
         if (sketchCreate.getFiles() != null) {
 
             if (sketchCreate.getFiles().size() > maxFilesAmount)
-                throw new IllegalArgumentException("Amount of files must not pe more then " + maxFilesAmount + "!");
+                throw new IllegalArgumentException("Amount of files must not be more then " + maxFilesAmount + "!");
 
             String uploadDir = this.filesRoot + sketch.getAuthorEmail() + "/";
             List<String> files = new ArrayList<>();
@@ -171,7 +171,7 @@ public class SketchService {
         if (sketchUpdate.getFiles() != null) {
 
             if (sketchUpdate.getFiles().size() > maxFilesAmount)
-                throw new IllegalArgumentException("Amount of files must not pe more then " + maxFilesAmount + "!");
+                throw new IllegalArgumentException("Amount of files must not be more then " + maxFilesAmount + "!");
 
             for (String filename : sketch.getFiles())
                 FileUtil.deleteFile(filename);

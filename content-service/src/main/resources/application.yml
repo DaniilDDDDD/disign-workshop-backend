@@ -19,7 +19,7 @@ spring:
       max-request-size: -1
 
 
-filesRoot: auth-service/src/main/resources/media/content/
+filesRoot: content-service/src/main/resources/media/content/
 maxFilesAmount: 15
 
 jwt:

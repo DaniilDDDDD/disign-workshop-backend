@@ -43,7 +43,7 @@ public class JwtTokenProvider {
     }
 
 
-    public Map<String, Object> getCredentials(String token) throws  JwtException {
+    public Map<String, Object> getCredentials(String token) throws JwtException {
         Jws<Claims> claims = Jwts.parserBuilder()
                 .setSigningKey(key).build()
                 .parseClaimsJws(token);

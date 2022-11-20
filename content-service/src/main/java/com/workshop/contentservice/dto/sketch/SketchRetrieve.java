@@ -1,7 +1,6 @@
 package com.workshop.contentservice.dto.sketch;
 
 import com.workshop.contentservice.document.Access;
-import com.workshop.contentservice.document.File;
 import com.workshop.contentservice.document.Sketch;
 import com.workshop.contentservice.document.Tag;
 import lombok.Builder;
@@ -22,7 +21,7 @@ public class SketchRetrieve {
     private Date publicationDate;
     private String name;
     private String description;
-    private List<File> files;
+    private List<String> files;
 
     public static SketchRetrieve parseSketchPublic(Sketch sketch) {
         return SketchRetrieve.builder()
