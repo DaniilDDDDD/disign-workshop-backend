@@ -6,6 +6,7 @@ import com.workshop.contentservice.document.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,10 +21,11 @@ public interface SketchRepository extends MongoRepository<Sketch, String> {
 
     Optional<Sketch> findByName(String name);
 
-    Optional<Sketch> findAllByNameAndAccess(String name, Access access, Pageable pageable);
+    Optional<Sketch> findByNameAndAccess(String name, Access access);
 
-    Page<Sketch> findAllByNameContainsAndAccess(List<String> name, Access access, Pageable pageable);
+    @Query("{'tags' : {$all: ?0}, 'access' : ?1}")
+    Page<Sketch> findAllByTagsAndAccess(List<Tag> tags, Access access, Pageable pageable);
 
-    Page<Sketch> findAllByTagsContainsAndAccess(List<Tag> tags, Access access, Pageable pageable);
-
+    @Query("{'name' : {$text :  {$search : ?0 }}}")
+    Page<Sketch> findAllByNameAndAccess(List<String> names, Access access, Pageable pageable);
 }

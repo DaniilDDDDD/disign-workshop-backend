@@ -65,16 +65,15 @@ public class SketchService {
         if (name.size() == 0)
             return List.of();
         if (name.size() == 1) {
-            Optional<Sketch> sketch = sketchRepository.findAllByNameAndAccess(
+            Optional<Sketch> sketch = sketchRepository.findByNameAndAccess(
                     name.get(0),
-                    Access.PUBLIC,
-                    PageRequest.of(page, size, Sort.by(sort))
+                    Access.PUBLIC
             );
             if (sketch.isEmpty())
                 throw new EntityNotFoundException("Sketch with provided name not found!");
             return List.of(sketch.get());
         } else {
-            return sketchRepository.findAllByNameContainsAndAccess(
+            return sketchRepository.findAllByNameAndAccess(
                     name,
                     Access.PUBLIC,
                     PageRequest.of(page, size, Sort.by(sort))
@@ -89,7 +88,7 @@ public class SketchService {
 
         List<Tag> tags = tagRepository.findAllByNameIn(tagNames);
 
-        return sketchRepository.findAllByTagsContainsAndAccess(
+        return sketchRepository.findAllByTagsAndAccess(
                 tags,
                 Access.PUBLIC,
                 PageRequest.of(page, size, Sort.by(sort))
