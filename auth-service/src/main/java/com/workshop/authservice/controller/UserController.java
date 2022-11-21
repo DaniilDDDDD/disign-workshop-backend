@@ -162,7 +162,8 @@ public class UserController {
     }
 
 
-    @PutMapping(value = "", consumes = {"multipart/form-data"})
+    // TODO: move avatar update to another endpoint
+    @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @Operation(
             summary = "Update self",
             description = "Update authenticated user."

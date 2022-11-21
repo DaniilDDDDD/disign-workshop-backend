@@ -15,17 +15,17 @@ import java.util.Optional;
 @Repository
 public interface SketchRepository extends MongoRepository<Sketch, String> {
 
-    Page<Sketch> findAllByAccess(Access access, Pageable pageable);
+    List<Sketch> findAllByAccess(Access access, Pageable pageable);
 
-    Page<Sketch> findAllByAuthorEmail(String authorEmail, Pageable pageable);
+    List<Sketch> findAllByAuthorEmail(String authorEmail, Pageable pageable);
 
     Optional<Sketch> findByName(String name);
 
     Optional<Sketch> findByNameAndAccess(String name, Access access);
 
     @Query("{'tags' : {$all: ?0}, 'access' : ?1}")
-    Page<Sketch> findAllByTagsAndAccess(List<Tag> tags, Access access, Pageable pageable);
+    List<Sketch> findAllByTagsAndAccess(List<Tag> tags, Access access, Pageable pageable);
 
     @Query("{'name' : {$text :  {$search : ?0 }}}")
-    Page<Sketch> findAllByNameAndAccess(List<String> names, Access access, Pageable pageable);
+    List<Sketch> findAllByNameAndAccess(List<String> names, Access access, Pageable pageable);
 }

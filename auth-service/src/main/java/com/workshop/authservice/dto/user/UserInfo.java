@@ -1,6 +1,7 @@
 package com.workshop.authservice.dto.user;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.workshop.authservice.model.Role;
 import com.workshop.authservice.model.User;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Data
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserInfo {
 
     private Long id;

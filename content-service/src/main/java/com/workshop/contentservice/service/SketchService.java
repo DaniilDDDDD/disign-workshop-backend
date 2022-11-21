@@ -49,7 +49,7 @@ public class SketchService {
         return sketchRepository.findAllByAccess(
                 Access.PUBLIC,
                 PageRequest.of(page, size, Sort.by(sort))
-        ).getContent();
+        );
     }
 
     public Sketch findPublicById(String id) throws EntityNotFoundException {
@@ -77,7 +77,7 @@ public class SketchService {
                     name,
                     Access.PUBLIC,
                     PageRequest.of(page, size, Sort.by(sort))
-            ).getContent();
+            );
         }
     }
 
@@ -92,7 +92,7 @@ public class SketchService {
                 tags,
                 Access.PUBLIC,
                 PageRequest.of(page, size, Sort.by(sort))
-        ).getContent();
+        );
     }
 
 
@@ -101,7 +101,7 @@ public class SketchService {
     ) {
         return sketchRepository.findAllByAuthorEmail(
                 authorEmail, PageRequest.of(page, size, Sort.by(sort))
-        ).getContent();
+        );
     }
 
     public Sketch create(

@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/sketch")
-@Tag(name = "User", description = "Sketches' endpoints")
+@RequestMapping("/sketches")
+@Tag(name = "Sketch", description = "Sketches' endpoints")
 public class SketchController {
 
     private final SketchService sketchService;
