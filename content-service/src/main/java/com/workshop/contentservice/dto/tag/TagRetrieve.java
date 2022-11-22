@@ -21,7 +21,8 @@ public class TagRetrieve {
         return TagRetrieve.builder()
                 .id(tag.getId())
                 .name(tag.getName())
-                .sketches(tag.getSketches().stream().map(Sketch::getId).toList())
+//                .sketches(tag.getSketches() != null ?
+//                        tag.getSketches().stream().map(Sketch::getId).toList() : null)
                 .build();
     }
 

@@ -1,4 +1,4 @@
-package com.workshop.authservice.exception;
+package com.workshop.authservice.handler;
 
 import com.workshop.authservice.dto.error.FieldException;
 import com.workshop.authservice.dto.error.NoFieldException;
@@ -14,13 +14,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-public class ErrorHandlerControllerAdvice {
+public class ErrorControllerAdvice {
 
 
     // BAD_REQUEST handlers

@@ -38,6 +38,8 @@ public class SecurityConfiguration {
                 .and()
                     .authorizeRequests()
                         .antMatchers(HttpMethod.GET, "/sketch*").permitAll()
+//                        .antMatchers("/tags*").hasAnyRole("ROLE_ADMIN", "ROLE_DEVELOPER", "ROLE_MODERATOR")
+                        .antMatchers("/tags*").permitAll()
                         .antMatchers("/docs/**").hasAnyRole("ROLE_DEVELOPER", "ROLE_ADMIN")
                     .anyRequest().authenticated()
                 .and()

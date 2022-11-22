@@ -45,6 +45,7 @@ public class SketchService {
         this.tagRepository = tagRepository;
     }
 
+
     public List<Sketch> findAllPublic(int page, int size, String sort) {
         return sketchRepository.findAllByAccess(
                 Access.PUBLIC,
@@ -52,12 +53,14 @@ public class SketchService {
         );
     }
 
-    public Sketch findPublicById(String id) throws EntityNotFoundException {
+
+    public Sketch findById(String id) throws EntityNotFoundException {
         Optional<Sketch> sketch = sketchRepository.findById(id);
         if (sketch.isEmpty())
             throw new EntityNotFoundException("Sketch with provided id not found!");
         return sketch.get();
     }
+
 
     public List<Sketch> findPublicByName(
             List<String> name, int page, int size, String sort
@@ -80,6 +83,7 @@ public class SketchService {
             );
         }
     }
+
 
     public List<Sketch> findAllPublicByTagContains(
             List<String> tagNames,
@@ -113,10 +117,12 @@ public class SketchService {
         Sketch sketch = Sketch.builder()
                 .authorName(credentials.get("username"))
                 .authorEmail(credentials.get("email"))
-                .access(Access.getByName(sketchCreate.getAccess()))
+                .access(sketchCreate.getAccess() != null ?
+                        Access.getByName(sketchCreate.getAccess()) : Access.PUBLIC)
                 .name(sketchCreate.getName())
                 .description(sketchCreate.getDescription())
                 .tags(tagRepository.findAllByNameIn(sketchCreate.getTags()))
+                .publicationDate(new Date())
                 .build();
 
         if (sketchCreate.getFiles() != null) {

@@ -20,6 +20,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/sketches")
@@ -82,7 +83,7 @@ public class SketchController {
     }
 
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     @Operation(
             summary = "Retrieve sketch",
             description = "Get sketch by id"
@@ -92,12 +93,12 @@ public class SketchController {
                     String id,
             Authentication authentication
     ) throws EntityNotFoundException {
-        Sketch sketch = sketchService.findPublicById(id);
+        Sketch sketch = sketchService.findById(id);
 
-        if (sketch.getAuthorEmail() == authentication.getPrincipal())
+        if (Objects.equals(sketch.getAuthorEmail(), authentication.getPrincipal())){
             return ResponseEntity.ok(
                     SketchRetrieve.parseSketchPrivate(sketch)
-            );
+            );}
         if (sketch.getAccess() == Access.PUBLIC)
             return ResponseEntity.ok(
                     SketchRetrieve.parseSketchPublic(sketch)
