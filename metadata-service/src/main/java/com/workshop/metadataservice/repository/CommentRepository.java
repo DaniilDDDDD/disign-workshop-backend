@@ -1,6 +1,6 @@
 package com.workshop.metadataservice.repository;
 
-import com.workshop.metadataservice.document.SketchLikes;
+import com.workshop.metadataservice.document.Comment;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,10 +8,11 @@ import java.util.List;
 
 
 @Repository
-public interface SketchLikeRepository extends MongoRepository<SketchLikes, String> {
+public interface CommentRepository extends MongoRepository<Comment, String> {
 
-    List<SketchLikes> findAllBySketch(String sketch);
-    List<SketchLikes> findAllByUser(String user);
+    List<Comment> findAllBySketch(String sketch);
+
+    List<Comment> findAllByUser(String user);
 
     Long countAllBySketch(String sketch);
 

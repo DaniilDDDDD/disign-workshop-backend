@@ -1,4 +1,4 @@
-package com.workshop.contentservice.security;
+package com.workshop.metadataservice.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;

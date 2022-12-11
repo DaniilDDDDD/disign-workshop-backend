@@ -160,8 +160,7 @@ public class SketchService {
         Sketch sketch = sketchData.get();
 
         Map<String, String> credentials = (Map<String, String>) authentication.getCredentials();
-        if (!Objects.equals(sketch.getAuthorEmail(), credentials.get("email")) ||
-                !Objects.equals(sketch.getAuthorName(), credentials.get("username")))
+        if (!Objects.equals(sketch.getAuthorEmail(), credentials.get("email")))
             throw new AccessDeniedException("Access denied!");
 
         sketch.setAccess(sketchUpdate.getAccess() != null ?
@@ -209,8 +208,7 @@ public class SketchService {
 
         Sketch sketch = sketchData.get();
         Map<String, String> credentials = (Map<String, String>) authentication.getCredentials();
-        if (!Objects.equals(sketch.getAuthorEmail(), credentials.get("email")) ||
-                !Objects.equals(sketch.getAuthorName(), credentials.get("username")))
+        if (!Objects.equals(sketch.getAuthorEmail(), credentials.get("email")))
             throw new AccessDeniedException("Access denied!");
 
         sketchRepository.delete(sketch);

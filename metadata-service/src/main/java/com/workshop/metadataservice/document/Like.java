@@ -1,18 +1,17 @@
 package com.workshop.metadataservice.document;
 
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
-@Document("sketch_reviews")
+@Document("sketch_likes")
 @Getter
 @Setter
 @Builder
-public class SketchReview {
+public class Like {
 
     @Id
     private String id;
@@ -20,11 +19,5 @@ public class SketchReview {
     private String sketch;
 
     private String user;
-
-    private String text;
-
-    private byte rating;
-
-    private List<String> files;
 
 }
