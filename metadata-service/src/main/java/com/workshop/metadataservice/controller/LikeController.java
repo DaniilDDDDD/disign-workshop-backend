@@ -34,10 +34,10 @@ public class LikeController {
     )
     public ResponseEntity<List<LikeRetrieve>> retrieve(
             @RequestParam(value = "sketch")
-            List<String> sketch
+            List<String> sketches
     ) {
         return ResponseEntity.ok(
-                likeService.retrieveSketchLikes(sketch)
+                likeService.retrieveSketchLikes(sketches)
                         .stream()
                         .map(LikeRetrieve::parseSketchLike)
                         .toList()

@@ -2,13 +2,16 @@ package com.workshop.metadataservice.service;
 
 
 import com.workshop.metadataservice.document.Comment;
+import com.workshop.metadataservice.dto.comment.CommentCreate;
+import com.workshop.metadataservice.dto.comment.CommentUpdate;
 import com.workshop.metadataservice.repository.CommentRepository;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class CommentService {
@@ -21,11 +24,66 @@ public class CommentService {
     }
 
 
+    // refactor with aggregation function on persistence level
+    public Map<String, Long> count(List<String> sketches) {
+        Map<String, Long> results = new HashMap<>();
+        for (String sketch : sketches)
+            results.put(
+                    sketch,
+                    commentRepository.countAllBySketch(sketch)
+            );
+        return results;
+    }
+
+
     public List<Comment> list(String sketch) {
         return commentRepository.findAllBySketch(sketch);
     }
 
-    public List<Pair<String,Long>> count(List<String> sketches) {
-        
+
+    public Comment create(
+            String sketch,
+            Authentication authentication,
+            CommentCreate commentCreate
+    ) {
+        // TODO: add synchronization with content microservice via message broker
+        Comment comment = Comment.builder()
+                .sketch(sketch)
+                .user((String) authentication.getPrincipal())
+                .date(new Date())
+                .text(commentCreate.getText())
+                .build();
+        return commentRepository.save(comment);
+    }
+
+
+    public Comment update(
+        String id,
+        Authentication authentication,
+        CommentUpdate update
+    ) throws EntityNotFoundException, AccessDeniedException {
+        Optional<Comment> commentData = commentRepository.findById(id);
+        if (commentData.isEmpty())
+            throw new EntityNotFoundException("No comment with provided id!");
+
+        Comment comment = commentData.get();
+
+        if (Objects.equals(comment.getUser(), (String) authentication.getPrincipal()))
+            throw new AccessDeniedException("Access denied!");
+
+        comment.setText(update.getText());
+
+        return commentRepository.save(comment);
+    }
+
+
+    public void delete(
+            String id,
+            Authentication authentication
+    ) throws EntityNotFoundException {
+        Optional<Comment> comment = commentRepository.findById(id);
+        if (comment.isEmpty())
+            throw new EntityNotFoundException("No comment with provided id!");
+        commentRepository.delete(comment.get());
     }
 }

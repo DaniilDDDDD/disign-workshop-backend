@@ -24,6 +24,7 @@ public class LikeService {
         this.likeRepository = likeRepository;
     }
 
+
     public List<Like> retrieveSketchLikes(List<String> sketches) {
         return likeRepository.findAllBySketchIn(sketches);
     }
@@ -50,7 +51,7 @@ public class LikeService {
 
         Optional<Like> sketchLike = likeRepository.findBySketchAndUser(
                 sketch,
-                ((Map<String, String>) authentication.getCredentials()).get("email")
+                (String) authentication.getPrincipal()
         );
 
         if (sketchLike.isEmpty())

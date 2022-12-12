@@ -9,6 +9,7 @@ import java.util.Date;
 @Data
 @Builder
 public class CommentRetrieve {
+    private String id;
     private String sketch;
     private String user;
     private String text;
@@ -16,6 +17,7 @@ public class CommentRetrieve {
 
     public static CommentRetrieve parseComment(Comment comment) {
         return CommentRetrieve.builder()
+                .id(comment.getId())
                 .sketch(comment.getSketch())
                 .user(comment.getUser())
                 .text(comment.getText())
