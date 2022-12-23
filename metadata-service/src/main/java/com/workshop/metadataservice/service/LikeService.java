@@ -9,9 +9,8 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -30,16 +29,29 @@ public class LikeService {
     }
 
 
+    public Map<String, Long> count(List<String> sketches) {
+        return sketches.stream().collect(
+                Collectors.toMap(
+                        e -> e,
+                        likeRepository::countAllBySketch
+                ));
+    }
+
+
     public Like create(
             String sketch,
             String user
     ) throws EntityExistsException {
+
+        // TODO: check if sketch does not exit via message broker
+
         if (likeRepository.existsBySketchAndUser(sketch, user))
             throw new EntityExistsException("Like on provided sketch already exists!");
         return likeRepository.save(
                 Like.builder()
                         .sketch(sketch)
                         .user(user)
+                        .date(new Date())
                         .build()
         );
     }

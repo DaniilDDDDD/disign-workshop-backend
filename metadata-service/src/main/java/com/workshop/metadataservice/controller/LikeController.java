@@ -1,5 +1,6 @@
 package com.workshop.metadataservice.controller;
 
+import com.workshop.metadataservice.dto.EntityCount;
 import com.workshop.metadataservice.dto.like.LikeRetrieve;
 import com.workshop.metadataservice.service.LikeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -24,6 +26,24 @@ public class LikeController {
     @Autowired
     public LikeController(LikeService likeService) {
         this.likeService = likeService;
+    }
+
+
+    @GetMapping("/count")
+    @Operation(
+            summary = "Count sketches' likes",
+            description = "Returns amount of sketches' likes"
+    )
+    public ResponseEntity<List<EntityCount>> count(
+            @PathParam(value = "sketch")
+                    List<String> sketches
+    ) {
+        return ResponseEntity.ok(
+                likeService.count(sketches)
+                        .entrySet().stream()
+                        .map(EntityCount::parseEntry)
+                        .toList()
+        );
     }
 
 

@@ -7,6 +7,8 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
+
 @Document("sketch_likes")
 @Getter
 @Setter
@@ -19,5 +21,7 @@ public class Like {
     private String sketch;
 
     private String user;
+
+    private Date date;
 
 }

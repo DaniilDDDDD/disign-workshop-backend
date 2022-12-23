@@ -1,0 +1,33 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /v1/api/metadata
+
+
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: workshop-metadata
+      username: workshop
+      password: qwerty1234
+      auto-index-creation: true
+      authentication-database: workshop-metadata
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+
+
+filesRoot: metadata-service/src/main/resources/media/metadata/
+maxFilesAmount: 15
+
+jwt:
+  access-token:
+    secret: ZGVzaWduX3dvcmtzaG9wX2FjY2Vzc19zZWNyZXQ=
+springdoc:
+  api-docs:
+    path: /docs
+  swagger-ui:
+    path: /docs/swagger.html

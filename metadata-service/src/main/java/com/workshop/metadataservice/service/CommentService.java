@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -24,15 +25,13 @@ public class CommentService {
     }
 
 
-    // refactor with aggregation function on persistence level
+    // TODO: refactor with aggregation function on persistence level
     public Map<String, Long> count(List<String> sketches) {
-        Map<String, Long> results = new HashMap<>();
-        for (String sketch : sketches)
-            results.put(
-                    sketch,
-                    commentRepository.countAllBySketch(sketch)
-            );
-        return results;
+        return sketches.stream().collect(
+                Collectors.toMap(
+                        e -> e,
+                        commentRepository::countAllBySketch
+                ));
     }
 
 
@@ -47,6 +46,7 @@ public class CommentService {
             CommentCreate commentCreate
     ) {
         // TODO: add synchronization with content microservice via message broker
+        // to figure out if sketch does not exists (and throw error)
         Comment comment = Comment.builder()
                 .sketch(sketch)
                 .user((String) authentication.getPrincipal())

@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-@Builder
 public class SketchCreate {
 
     private String access;

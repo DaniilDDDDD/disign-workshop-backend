@@ -1,7 +1,7 @@
 package com.workshop.metadataservice.controller;
 
 
-import com.workshop.metadataservice.dto.comment.CommentCount;
+import com.workshop.metadataservice.dto.EntityCount;
 import com.workshop.metadataservice.dto.comment.CommentCreate;
 import com.workshop.metadataservice.dto.comment.CommentRetrieve;
 import com.workshop.metadataservice.dto.comment.CommentUpdate;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
@@ -38,17 +37,14 @@ public class CommentController {
             summary = "Count sketches' comments",
             description = "Returns amount of sketches' comments"
     )
-    public ResponseEntity<List<CommentCount>> count(
+    public ResponseEntity<List<EntityCount>> count(
             @PathParam(value = "sketch")
                     List<String> sketches
     ) {
         return ResponseEntity.ok(
                 commentService.count(sketches)
                         .entrySet().stream()
-                        .map(e -> CommentCount.builder()
-                                .sketch(e.getKey())
-                                .amount(e.getValue())
-                                .build())
+                        .map(EntityCount::parseEntry)
                         .toList()
         );
     }

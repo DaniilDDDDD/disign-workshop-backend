@@ -11,11 +11,10 @@ import java.util.Optional;
 @Repository
 public interface LikeRepository extends MongoRepository<Like, String> {
 
-    Optional<Like> findBySketchAndUser(String sketch, String user);
-    List<Like> findAllBySketch(String sketch);
-    List<Like> findAllBySketchIn(List<String> sketches);
+    Long countAllBySketch(String sketch);
 
-    List<Like> findAllByUser(String user);
+    Optional<Like> findBySketchAndUser(String sketch, String user);
+    List<Like> findAllBySketchIn(List<String> sketches);
 
     boolean existsBySketchAndUser(String sketch, String user);
 

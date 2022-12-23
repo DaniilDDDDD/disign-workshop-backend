@@ -1,19 +1,21 @@
 package com.workshop.metadataservice.controller;
 
 
-import com.workshop.metadataservice.dto.review.ReviewCount;
+import com.workshop.metadataservice.dto.EntityCount;
+import com.workshop.metadataservice.dto.review.ReviewData;
 import com.workshop.metadataservice.dto.review.ReviewRetrieve;
 import com.workshop.metadataservice.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityExistsException;
 import javax.websocket.server.PathParam;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -34,17 +36,14 @@ public class ReviewController {
             summary = "Count sketches' reviews",
             description = "Returns amount of sketches' reviews"
     )
-    public ResponseEntity<List<ReviewCount>> count(
+    public ResponseEntity<List<EntityCount>> count(
             @PathParam(value = "sketch")
                     List<String> sketches
     ) {
         return ResponseEntity.ok(
                 reviewService.count(sketches)
                         .entrySet().stream()
-                        .map(e -> ReviewCount.builder()
-                                .sketch(e.getKey())
-                                .amount(e.getValue())
-                                .build())
+                        .map(EntityCount::parseEntry)
                         .toList()
         );
     }
@@ -65,5 +64,52 @@ public class ReviewController {
                         .map(ReviewRetrieve::parseReview)
                         .toList()
         );
+    }
+
+
+    @PostMapping("/{sketch}")
+    @Operation(
+            summary = "Create review",
+            description = "Create review on a certain sketch"
+    )
+    public ResponseEntity<ReviewRetrieve> create(
+            @PathVariable(name = "sketch")
+                    String sketch,
+            @ModelAttribute
+                    ReviewData reviewData,
+            Authentication authentication
+    ) throws EntityExistsException, IllegalArgumentException, IOException {
+        return new ResponseEntity<>(
+                ReviewRetrieve.parseReview(
+                        reviewService.create(
+                                sketch,
+                                reviewData,
+                                authentication
+                        )
+                ),
+                HttpStatus.CREATED
+        );
+    }
+
+
+    @PutMapping("/{sketch}")
+    @Operation(
+            summary = "Update review",
+            description = "Update review on a certain sketch"
+    )
+    public ResponseEntity<ReviewRetrieve> update(
+            @PathVariable(name = "sketch")
+                    String sketch,
+            @ModelAttribute
+                    ReviewData reviewData,
+            Authentication authentication
+    ) throws EntityExistsException, IllegalArgumentException, IOException {
+        return ResponseEntity.ok().body(
+                ReviewRetrieve.parseReview(
+                        reviewService.update(
+                                sketch,
+                                reviewData,
+                                authentication
+                        )));
     }
 }

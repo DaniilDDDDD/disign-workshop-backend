@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.List;
 
 @Document("sketch_comment")
 @Getter
@@ -25,4 +26,6 @@ public class Comment {
     private String text;
 
     private Date date;
+
+    private List<String> files;
 }
