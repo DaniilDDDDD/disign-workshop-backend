@@ -1,6 +1,6 @@
 package com.workshop.metadataservice.dto.review;
 
-import com.workshop.metadataservice.document.Review;
+import com.workshop.metadataservice.document.metadata.Review;
 import lombok.Builder;
 import lombok.Data;
 

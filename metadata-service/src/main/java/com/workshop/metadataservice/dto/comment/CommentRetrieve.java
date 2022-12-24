@@ -1,6 +1,6 @@
 package com.workshop.metadataservice.dto.comment;
 
-import com.workshop.metadataservice.document.Comment;
+import com.workshop.metadataservice.document.metadata.Comment;
 import lombok.Builder;
 import lombok.Data;
 

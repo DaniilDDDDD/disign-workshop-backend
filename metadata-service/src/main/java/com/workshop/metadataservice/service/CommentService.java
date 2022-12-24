@@ -1,15 +1,17 @@
 package com.workshop.metadataservice.service;
 
 
-import com.workshop.metadataservice.document.Comment;
+import com.workshop.metadataservice.document.metadata.Comment;
 import com.workshop.metadataservice.dto.comment.CommentCreate;
 import com.workshop.metadataservice.dto.comment.CommentUpdate;
-import com.workshop.metadataservice.repository.CommentRepository;
+import com.workshop.metadataservice.repository.content.SketchRepository;
+import com.workshop.metadataservice.repository.metadata.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,10 +20,12 @@ import java.util.stream.Collectors;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final SketchRepository sketchRepository;
 
     @Autowired
-    public CommentService(CommentRepository commentRepository) {
+    public CommentService(CommentRepository commentRepository, SketchRepository sketchRepository) {
         this.commentRepository = commentRepository;
+        this.sketchRepository = sketchRepository;
     }
 
 
@@ -44,9 +48,10 @@ public class CommentService {
             String sketch,
             Authentication authentication,
             CommentCreate commentCreate
-    ) {
-        // TODO: add synchronization with content microservice via message broker
-        // to figure out if sketch does not exists (and throw error)
+    ) throws EntityExistsException {
+        if (!sketchRepository.existsById(sketch))
+            throw new EntityExistsException("Sketch with provided id does not exist!");
+
         Comment comment = Comment.builder()
                 .sketch(sketch)
                 .user((String) authentication.getPrincipal())

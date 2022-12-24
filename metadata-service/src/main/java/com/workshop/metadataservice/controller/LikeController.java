@@ -15,6 +15,8 @@ import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import javax.websocket.server.PathParam;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/like")
@@ -36,7 +38,7 @@ public class LikeController {
     )
     public ResponseEntity<List<EntityCount>> count(
             @PathParam(value = "sketch")
-                    List<String> sketches
+                    Set<String> sketches
     ) {
         return ResponseEntity.ok(
                 likeService.count(sketches)
@@ -49,60 +51,59 @@ public class LikeController {
 
     @GetMapping("")
     @Operation(
-            summary = "Retrieve sketches' likes",
-            description = "Retrieve likes of certain sketches"
+            summary = "Retrieve likes",
+            description = "Retrieve likes provided sketches"
     )
-    public ResponseEntity<List<LikeRetrieve>> retrieve(
+    public ResponseEntity<Set<LikeRetrieve>> retrieve(
             @RequestParam(value = "sketch")
-            List<String> sketches
+                    Set<String> sketches
     ) {
         return ResponseEntity.ok(
-                likeService.retrieveSketchLikes(sketches)
+                likeService.retrieve(sketches)
                         .stream()
-                        .map(LikeRetrieve::parseSketchLike)
-                        .toList()
+                        .map(LikeRetrieve::parseLike)
+                        .collect(Collectors.toSet())
         );
     }
 
 
-    @PostMapping("/{sketch}")
+    @PostMapping("")
     @Operation(
-            summary = "Create sketch like",
-            description = "Create like of certain sketch"
+            summary = "Create likes",
+            description = "Create likes on provided sketches"
     )
-    public ResponseEntity<LikeRetrieve> create(
-            @PathVariable(value = "sketch")
-            String sketch,
+    public ResponseEntity<Set<LikeRetrieve>> create(
+            @RequestParam("sketch")
+                    Set<String> sketches,
             Authentication authentication
     ) throws EntityExistsException {
         return new ResponseEntity<>(
-                LikeRetrieve.parseSketchLike(
-                        likeService.create(
-                                sketch,
-                                (String) authentication.getPrincipal()
-                        )
-                ),
+                likeService
+                        .create(sketches,authentication)
+                        .stream()
+                        .map(LikeRetrieve::parseLike)
+                        .collect(Collectors.toSet()),
                 HttpStatus.CREATED
         );
     }
 
 
-    @DeleteMapping("/{sketch}")
+    @DeleteMapping("")
     @Operation(
-            summary = "Delete sketch like",
+            summary = "Delete likes",
             description = "Delete like of certain sketch"
     )
     public ResponseEntity<String> delete(
-            @PathVariable(value = "sketch")
-            String sketch,
+            @RequestParam("sketch")
+                    Set<String> sketches,
             Authentication authentication
-    ) throws EntityNotFoundException {
+    ) {
         likeService.delete(
-                sketch,
+                sketches,
                 authentication
         );
         return new ResponseEntity<>(
-                "Sketch " + sketch + " deleted!",
+                "Likes on provided sketches deleted!",
                 HttpStatus.NO_CONTENT
         );
     }

@@ -1,6 +1,6 @@
-package com.workshop.metadataservice.repository;
+package com.workshop.metadataservice.repository.metadata;
 
-import com.workshop.metadataservice.document.Review;
+import com.workshop.metadataservice.document.metadata.Review;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

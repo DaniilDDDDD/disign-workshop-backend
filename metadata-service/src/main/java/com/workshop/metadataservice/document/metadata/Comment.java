@@ -1,11 +1,11 @@
-package com.workshop.metadataservice.document;
+package com.workshop.metadataservice.document.metadata;
 
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.util.Date;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 public class Comment {
 
-    @Id
+    @MongoId
     private String id;
 
     private String sketch;

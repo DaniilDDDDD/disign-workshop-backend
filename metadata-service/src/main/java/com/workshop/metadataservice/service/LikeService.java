@@ -1,14 +1,13 @@
 package com.workshop.metadataservice.service;
 
 
-import com.workshop.metadataservice.document.Like;
-import com.workshop.metadataservice.repository.LikeRepository;
+import com.workshop.metadataservice.document.metadata.Like;
+import com.workshop.metadataservice.repository.content.SketchRepository;
+import com.workshop.metadataservice.repository.metadata.LikeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityExistsException;
-import javax.persistence.EntityNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,19 +16,21 @@ import java.util.stream.Collectors;
 public class LikeService {
 
     private final LikeRepository likeRepository;
+    private final SketchRepository sketchRepository;
 
     @Autowired
-    public LikeService(LikeRepository likeRepository) {
+    public LikeService(LikeRepository likeRepository, SketchRepository sketchRepository) {
         this.likeRepository = likeRepository;
+        this.sketchRepository = sketchRepository;
     }
 
 
-    public List<Like> retrieveSketchLikes(List<String> sketches) {
+    public Set<Like> retrieve(Set<String> sketches) {
         return likeRepository.findAllBySketchIn(sketches);
     }
 
 
-    public Map<String, Long> count(List<String> sketches) {
+    public Map<String, Long> count(Set<String> sketches) {
         return sketches.stream().collect(
                 Collectors.toMap(
                         e -> e,
@@ -38,39 +39,47 @@ public class LikeService {
     }
 
 
-    public Like create(
-            String sketch,
-            String user
-    ) throws EntityExistsException {
+    public Set<Like> create(
+            Set<String> sketches,
+            Authentication authentication
+    ) {
+        String userEmail = (String) authentication.getPrincipal();
 
-        // TODO: check if sketch does not exit via message broker
+        return sketches.stream()
+                .map(
+                        sketch -> {
+                            if (!sketchRepository.existsById(sketch))
+                                return null;
 
-        if (likeRepository.existsBySketchAndUser(sketch, user))
-            throw new EntityExistsException("Like on provided sketch already exists!");
-        return likeRepository.save(
-                Like.builder()
-                        .sketch(sketch)
-                        .user(user)
-                        .date(new Date())
-                        .build()
-        );
+                                Optional<Like> likeData = likeRepository.findBySketchAndUser(sketch, userEmail);
+                            if (likeData.isEmpty())
+                                return likeRepository.save(
+                                        Like.builder()
+                                                .sketch(sketch)
+                                                .user(userEmail)
+                                                .date(new Date())
+                                                .build()
+                                );
+                            return likeData.get();
+                        }
+                )
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
     }
 
 
     public void delete(
-            String sketch, Authentication authentication
-    ) throws EntityNotFoundException {
-
-        Optional<Like> sketchLike = likeRepository.findBySketchAndUser(
-                sketch,
-                (String) authentication.getPrincipal()
+            Set<String> sketches, Authentication authentication
+    ) {
+        String userEmail = (String) authentication.getPrincipal();
+        sketches.forEach(
+                sketch -> {
+                    Optional<Like> like = likeRepository.findBySketchAndUser(sketch, userEmail);
+                    if (like.isPresent() && Objects.equals(like.get().getUser(), userEmail))
+                        likeRepository.delete(like.get());
+                }
         );
-
-        if (sketchLike.isEmpty())
-            throw new EntityNotFoundException(
-                    "Like on provided sketch does not exist!");
-
-        likeRepository.delete(sketchLike.get());
     }
 
 }

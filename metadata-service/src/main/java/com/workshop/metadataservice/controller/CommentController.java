@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
@@ -80,7 +81,7 @@ public class CommentController {
             @Valid
                     CommentCreate commentCreate,
             Authentication authentication
-    ) {
+    ) throws EntityExistsException {
         return new ResponseEntity<>(
                 CommentRetrieve.parseComment(
                         commentService.create(

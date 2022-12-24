@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.List;
@@ -111,5 +112,23 @@ public class ReviewController {
                                 reviewData,
                                 authentication
                         )));
+    }
+
+
+    @DeleteMapping("/{sketch}")
+    @Operation(
+            summary = "Delete review",
+            description = "Delete review on a certain sketch"
+    )
+    public ResponseEntity<String> update(
+            @PathVariable(name = "sketch")
+                    String sketch,
+            Authentication authentication
+    ) throws EntityNotFoundException {
+        reviewService.delete(sketch, authentication);
+        return new ResponseEntity<>(
+                "Review on sketch with id " + sketch + " deleted!",
+                HttpStatus.NO_CONTENT
+        );
     }
 }

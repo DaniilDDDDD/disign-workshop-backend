@@ -1,11 +1,12 @@
-package com.workshop.metadataservice.document;
+package com.workshop.metadataservice.document.metadata;
 
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.util.Date;
 
@@ -13,9 +14,10 @@ import java.util.Date;
 @Getter
 @Setter
 @Builder
+@CompoundIndex(def = "{'sketch': 1, 'number': 1}", unique = true)
 public class Like {
 
-    @Id
+    @MongoId
     private String id;
 
     private String sketch;

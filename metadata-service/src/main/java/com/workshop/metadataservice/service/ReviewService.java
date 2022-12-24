@@ -1,8 +1,9 @@
 package com.workshop.metadataservice.service;
 
-import com.workshop.metadataservice.document.Review;
+import com.workshop.metadataservice.document.metadata.Review;
 import com.workshop.metadataservice.dto.review.ReviewData;
-import com.workshop.metadataservice.repository.ReviewRepository;
+import com.workshop.metadataservice.repository.content.SketchRepository;
+import com.workshop.metadataservice.repository.metadata.ReviewRepository;
 import com.workshop.metadataservice.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,17 +23,20 @@ import java.util.stream.Collectors;
 @Service
 public class ReviewService {
 
-    private final ReviewRepository reviewRepository;
-
     @Value("${filesRoot}")
     private String filesRoot;
 
     @Value("${maxFilesAmount}")
     private int maxFilesAmount;
 
+
+    private final ReviewRepository reviewRepository;
+    private final SketchRepository sketchRepository;
+
     @Autowired
-    public ReviewService(ReviewRepository reviewRepository) {
+    public ReviewService(ReviewRepository reviewRepository, SketchRepository sketchRepository) {
         this.reviewRepository = reviewRepository;
+        this.sketchRepository = sketchRepository;
     }
 
 
@@ -57,6 +61,9 @@ public class ReviewService {
             ReviewData reviewData,
             Authentication authentication
     ) throws EntityExistsException, IllegalArgumentException, IOException {
+
+        if (!sketchRepository.existsById(sketch))
+            throw new EntityExistsException("Sketch with provided id does not exist!");
 
         String authorEmail = (String) authentication.getPrincipal();
 
@@ -137,5 +144,25 @@ public class ReviewService {
         }
 
         return reviewRepository.save(review);
+    }
+
+
+    public void delete(
+            String sketch,
+            Authentication authentication
+    ) throws EntityNotFoundException {
+
+        String userEmail = (String) authentication.getPrincipal();
+
+        Optional<Review> reviewData = reviewRepository.findBySketchAndUser(
+                sketch, userEmail);
+        if (reviewData.isEmpty()) throw new EntityNotFoundException("Review on provided sketch does not exist!");
+
+        Review review = reviewData.get();
+
+        if (!Objects.equals(review.getUser(), userEmail))
+            throw new AccessDeniedException("Access denied!");
+
+        reviewRepository.delete(review);
     }
 }
