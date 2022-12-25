@@ -19,7 +19,9 @@ public class LikeService {
     private final SketchRepository sketchRepository;
 
     @Autowired
-    public LikeService(LikeRepository likeRepository, SketchRepository sketchRepository) {
+    public LikeService(LikeRepository likeRepository,
+            SketchRepository sketchRepository
+    ) {
         this.likeRepository = likeRepository;
         this.sketchRepository = sketchRepository;
     }

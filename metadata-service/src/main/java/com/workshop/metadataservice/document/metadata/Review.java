@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 import java.util.Date;
 import java.util.List;
 
-@Document("sketch_reviews")
+@Document("review")
 @Getter
 @Setter
 @Builder

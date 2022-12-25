@@ -5,9 +5,6 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.workshop.metadataservice.repository.metadata.CommentRepository;
-import com.workshop.metadataservice.repository.metadata.LikeRepository;
-import com.workshop.metadataservice.repository.metadata.ReviewRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -16,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
@@ -51,7 +49,8 @@ public class MetadataDatabaseConfiguration {
 
         return MongoClients.create(MongoClientSettings.builder()
                 .applyToClusterSettings(builder -> builder
-                        .hosts(singletonList(new ServerAddress(mongoProperties.getHost(), mongoProperties.getPort()))))
+                        .hosts(singletonList(new ServerAddress(mongoProperties.getHost(),
+                                mongoProperties.getPort()))))
                 .credential(credential)
                 .build());
     }
@@ -63,5 +62,13 @@ public class MetadataDatabaseConfiguration {
             @Qualifier("metadataMongoClient") MongoClient mongoClient,
             @Qualifier("metadataDatabaseProperties") MongoProperties mongoProperties) {
         return new SimpleMongoClientDatabaseFactory(mongoClient, mongoProperties.getDatabase());
+    }
+
+
+    @Primary
+    @Bean(name = "metadataMongoTemplate")
+    public MongoTemplate mongoTemplate(
+            @Qualifier("metadataMongoDBFactory") MongoDatabaseFactory mongoDatabaseFactory) {
+        return new MongoTemplate(mongoDatabaseFactory);
     }
 }

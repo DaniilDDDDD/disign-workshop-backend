@@ -34,7 +34,10 @@ public class ReviewService {
     private final SketchRepository sketchRepository;
 
     @Autowired
-    public ReviewService(ReviewRepository reviewRepository, SketchRepository sketchRepository) {
+    public ReviewService(
+            ReviewRepository reviewRepository,
+            SketchRepository sketchRepository
+    ) {
         this.reviewRepository = reviewRepository;
         this.sketchRepository = sketchRepository;
     }

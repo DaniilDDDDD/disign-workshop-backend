@@ -23,7 +23,10 @@ public class CommentService {
     private final SketchRepository sketchRepository;
 
     @Autowired
-    public CommentService(CommentRepository commentRepository, SketchRepository sketchRepository) {
+    public CommentService(
+            CommentRepository commentRepository,
+            SketchRepository sketchRepository
+    ) {
         this.commentRepository = commentRepository;
         this.sketchRepository = sketchRepository;
     }
