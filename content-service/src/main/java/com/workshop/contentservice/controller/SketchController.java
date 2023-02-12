@@ -43,44 +43,33 @@ public class SketchController {
     public ResponseEntity<List<SketchRetrieve>> list(
             @Min(value = 0)
             @RequestParam(value = "page", defaultValue = "0")
-                    int page,
+            int page,
             @Min(value = 1)
             @RequestParam(value = "size", defaultValue = "9")
-                    int size,
+            int size,
             @RequestParam(value = "sort", defaultValue = "publicationDate")
-                    String sort,
+            String sort,
             @RequestParam(value = "tags", required = false)
-                    List<String> tags,
-            @RequestParam(value = "name", required = false) // lookup by name is executed by every word
-                    List<String> name
+            List<String> tags,
+            @RequestParam(value = "name", required = false)
+            List<String> name
     ) throws EntityNotFoundException {
 
-        if (tags == null && name == null)
-            return ResponseEntity.ok(
-                    sketchService.findAllPublic(
-                            page, size, sort
-                    ).stream().map(
-                            SketchRetrieve::parseSketchPublic
-                    ).toList()
-            );
+        if (tags == null)
+            tags = List.of();
 
-        if (tags == null) {
-            return ResponseEntity.ok(
-                    sketchService.findPublicByName(
-                            name, page, size, sort
+        if (name == null)
+            name = List.of();
+
+        return ResponseEntity.ok(
+                sketchService.findAllPublicByTagsAndName(
+                        tags, name, page, size, sort
                     ).stream().map(
                             SketchRetrieve::parseSketchPublic
                     ).toList()
-            );
-        } else
-            return ResponseEntity.ok(
-                    sketchService.findAllPublicByTagContains(
-                            tags, page, size, sort
-                    ).stream().map(
-                            SketchRetrieve::parseSketchPublic
-                    ).toList()
-            );
+        );
     }
+
 
 
     @GetMapping("/{id}")
@@ -90,15 +79,16 @@ public class SketchController {
     )
     public ResponseEntity<SketchRetrieve> retrieve(
             @PathVariable(name = "id")
-                    String id,
+            String id,
             Authentication authentication
     ) throws EntityNotFoundException {
         Sketch sketch = sketchService.findById(id);
 
-        if (Objects.equals(sketch.getAuthorEmail(), authentication.getPrincipal())){
+        if (Objects.equals(sketch.getAuthorEmail(), authentication.getPrincipal())) {
             return ResponseEntity.ok(
                     SketchRetrieve.parseSketchPrivate(sketch)
-            );}
+            );
+        }
         if (sketch.getAccess() == Access.PUBLIC)
             return ResponseEntity.ok(
                     SketchRetrieve.parseSketchPublic(sketch)
@@ -116,12 +106,12 @@ public class SketchController {
     public ResponseEntity<List<SketchRetrieve>> me(
             @Min(value = 0)
             @RequestParam(value = "page", defaultValue = "0")
-                    int page,
+            int page,
             @Min(value = 1)
             @RequestParam(value = "size", defaultValue = "9")
-                    int size,
+            int size,
             @RequestParam(value = "sort", defaultValue = "publicationDate")
-                    String sort,
+            String sort,
             Authentication authentication
     ) {
         return ResponseEntity.ok(sketchService.findAllByAuthorEmail(
@@ -142,7 +132,7 @@ public class SketchController {
     public ResponseEntity<SketchRetrieve> create(
             @Valid
             @ModelAttribute
-                    SketchCreate sketchCreate,
+            SketchCreate sketchCreate,
             Authentication authentication
     ) throws EntityExistsException, IllegalArgumentException, IOException {
         return new ResponseEntity<>(
@@ -161,10 +151,10 @@ public class SketchController {
     )
     public ResponseEntity<SketchRetrieve> update(
             @PathVariable(name = "id")
-                    String id,
+            String id,
             @Valid
             @ModelAttribute
-                    SketchUpdate sketchUpdate,
+            SketchUpdate sketchUpdate,
             Authentication authentication
     ) throws EntityNotFoundException, IOException {
         return ResponseEntity.ok(
@@ -186,7 +176,7 @@ public class SketchController {
     )
     public ResponseEntity<String> delete(
             @PathVariable
-                    String id,
+            String id,
             Authentication authentication
     ) throws EntityNotFoundException {
         sketchService.delete(id, authentication);

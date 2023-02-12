@@ -1,6 +1,8 @@
 server:
+  port: 8080
   servlet:
     context-path: /v1/api/users
+
 
 spring:
   datasource:
@@ -42,6 +44,7 @@ spring:
 #    activate:
 #      on-profile: production
 
+
 filesRoot: auth-service/src/main/resources/media/users/
 publicRoles: >
   ROLE_CUSTOMER,
@@ -53,12 +56,14 @@ adminRoles: >
   ROLE_MODERATOR, 
   ROLE_SUPPORT
 
+
 jwt:
   access-token:
     secret: ZGVzaWduX3dvcmtzaG9wX2FjY2Vzc19zZWNyZXQ=
-    expired: 3600000
+    expired: 36000000
   refresh-token:
     expired: 86400000
+
 
 springdoc:
   api-docs:

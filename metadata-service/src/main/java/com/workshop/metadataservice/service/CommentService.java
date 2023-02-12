@@ -33,7 +33,7 @@ public class CommentService {
 
 
     // TODO: refactor with aggregation function on persistence level
-    public Map<String, Long> count(List<String> sketches) {
+    public Map<String, Long> count(Set<String> sketches) {
         return sketches.stream().collect(
                 Collectors.toMap(
                         e -> e,
@@ -76,7 +76,7 @@ public class CommentService {
 
         Comment comment = commentData.get();
 
-        if (Objects.equals(comment.getUser(), (String) authentication.getPrincipal()))
+        if (!Objects.equals(comment.getUser(), authentication.getPrincipal()))
             throw new AccessDeniedException("Access denied!");
 
         comment.setText(update.getText());
@@ -88,10 +88,12 @@ public class CommentService {
     public void delete(
             String id,
             Authentication authentication
-    ) throws EntityNotFoundException {
+    ) throws EntityNotFoundException, AccessDeniedException {
         Optional<Comment> comment = commentRepository.findById(id);
         if (comment.isEmpty())
             throw new EntityNotFoundException("No comment with provided id!");
+        if (!Objects.equals(comment.get().getUser(), authentication.getPrincipal()))
+            throw new AccessDeniedException("Access denied!");
         commentRepository.delete(comment.get());
     }
 }

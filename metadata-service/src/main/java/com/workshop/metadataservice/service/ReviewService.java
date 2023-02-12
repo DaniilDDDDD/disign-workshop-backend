@@ -43,8 +43,8 @@ public class ReviewService {
     }
 
 
-    public Map<String,Long> count(
-            List<String> sketches
+    public Map<String, Long> count(
+            Set<String> sketches
     ) {
         return sketches.stream().collect(
                 Collectors.toMap(
@@ -73,7 +73,6 @@ public class ReviewService {
         if (reviewRepository.existsBySketchAndUser(sketch, authorEmail))
             throw new EntityExistsException("Review on provided sketch already exists!");
 
-        // TODO: check if sketch does not exit via message broker
         Review review = Review.builder()
                 .sketch(sketch)
                 .user((String) authentication.getPrincipal())
@@ -122,7 +121,7 @@ public class ReviewService {
 
 
         review.setText(reviewData.getText() != null ? reviewData.getText() : review.getText());
-        review.setText(reviewData.getRating() != 0 ? reviewData.getText() : review.getText());
+        review.setRating(reviewData.getRating() != 0 ? reviewData.getRating() : review.getRating());
 
         if (reviewData.getFiles() != null) {
 
@@ -151,21 +150,20 @@ public class ReviewService {
 
 
     public void delete(
-            String sketch,
+            Set<String> sketches,
             Authentication authentication
-    ) throws EntityNotFoundException {
+    ) {
+        reviewRepository
+                .findAllBySketchInAndUser(sketches, (String) authentication.getPrincipal())
+                .forEach(review -> {
+                    review.getFiles().forEach(filename -> {
+                        try {
+                            FileUtil.deleteFile(filename);
+                        } catch (IOException ignored) {}
+                    });
 
-        String userEmail = (String) authentication.getPrincipal();
-
-        Optional<Review> reviewData = reviewRepository.findBySketchAndUser(
-                sketch, userEmail);
-        if (reviewData.isEmpty()) throw new EntityNotFoundException("Review on provided sketch does not exist!");
-
-        Review review = reviewData.get();
-
-        if (!Objects.equals(review.getUser(), userEmail))
-            throw new AccessDeniedException("Access denied!");
-
-        reviewRepository.delete(review);
+                    reviewRepository.delete(review);
+                });
     }
 }
+

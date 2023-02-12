@@ -1,4 +1,4 @@
-package com.workshop.contentservice.repository;
+package com.workshop.contentservice.repository.sketch;
 
 import com.workshop.contentservice.document.Access;
 import com.workshop.contentservice.document.Sketch;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface SketchRepository extends MongoRepository<Sketch, String> {
+public interface SketchRepository extends MongoRepository<Sketch, String>, SketchRepositoryCustom {
 
     List<Sketch> findAllByAccess(Access access, Pageable pageable);
 
@@ -23,9 +23,4 @@ public interface SketchRepository extends MongoRepository<Sketch, String> {
 
     Optional<Sketch> findByNameAndAccess(String name, Access access);
 
-    @Query("{'tags' : {$all: ?0}, 'access' : ?1}")
-    List<Sketch> findAllByTagsAndAccess(List<Tag> tags, Access access, Pageable pageable);
-
-    @Query("{'name' : {$text :  {$search : ?0 }}}")
-    List<Sketch> findAllByNameAndAccess(List<String> names, Access access, Pageable pageable);
 }

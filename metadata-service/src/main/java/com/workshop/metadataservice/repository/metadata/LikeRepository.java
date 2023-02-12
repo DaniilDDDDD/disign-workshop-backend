@@ -16,6 +16,6 @@ public interface LikeRepository extends MongoRepository<Like, String> {
     Optional<Like> findBySketchAndUser(String sketch, String user);
     Set<Like> findAllBySketchIn(Set<String> sketches);
 
-    boolean existsBySketchAndUser(String sketch, String user);
+    void deleteAllBySketchInAndUser(Set<String> sketches, String user);
 
 }

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
@@ -42,6 +43,7 @@ public class Sketch implements Serializable {
 
     @NotNull(message = "Name must be provided!")
     @Indexed(unique = true)
+    @TextIndexed
     private String name;
 
     private String description;

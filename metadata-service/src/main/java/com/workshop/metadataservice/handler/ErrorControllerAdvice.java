@@ -1,7 +1,7 @@
-package com.workshop.contentservice.handler;
+package com.workshop.metadataservice.handler;
 
-import com.workshop.contentservice.dto.error.FieldException;
-import com.workshop.contentservice.dto.error.NoFieldException;
+import com.workshop.metadataservice.dto.error.FieldException;
+import com.workshop.metadataservice.dto.error.NoFieldException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;

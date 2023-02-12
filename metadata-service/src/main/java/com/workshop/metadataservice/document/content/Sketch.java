@@ -5,8 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import javax.persistence.Id;
 import java.io.Serializable;
 
 @Document("sketch")
@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Builder
 public class Sketch implements Serializable {
 
-    @MongoId
+    @Id
     private String id;
 
 }

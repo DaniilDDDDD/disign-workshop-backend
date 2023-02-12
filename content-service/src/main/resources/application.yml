@@ -23,9 +23,12 @@ spring:
 filesRoot: content-service/src/main/resources/media/content/
 maxFilesAmount: 15
 
+
 jwt:
   access-token:
     secret: ZGVzaWduX3dvcmtzaG9wX2FjY2Vzc19zZWNyZXQ=
+
+
 springdoc:
   api-docs:
     path: /docs

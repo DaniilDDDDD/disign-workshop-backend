@@ -19,6 +19,8 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/comment")
@@ -38,15 +40,15 @@ public class CommentController {
             summary = "Count sketches' comments",
             description = "Returns amount of sketches' comments"
     )
-    public ResponseEntity<List<EntityCount>> count(
-            @PathParam(value = "sketch")
-                    List<String> sketches
+    public ResponseEntity<Set<EntityCount>> count(
+            @RequestParam(value = "sketch")
+                Set<String> sketches
     ) {
         return ResponseEntity.ok(
                 commentService.count(sketches)
                         .entrySet().stream()
                         .map(EntityCount::parseEntry)
-                        .toList()
+                        .collect(Collectors.toSet())
         );
     }
 

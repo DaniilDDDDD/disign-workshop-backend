@@ -18,6 +18,8 @@ import javax.persistence.EntityNotFoundException;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/review")
@@ -37,15 +39,15 @@ public class ReviewController {
             summary = "Count sketches' reviews",
             description = "Returns amount of sketches' reviews"
     )
-    public ResponseEntity<List<EntityCount>> count(
-            @PathParam(value = "sketch")
-                    List<String> sketches
+    public ResponseEntity<Set<EntityCount>> count(
+            @RequestParam(value = "sketch")
+                    Set<String> sketches
     ) {
         return ResponseEntity.ok(
                 reviewService.count(sketches)
                         .entrySet().stream()
                         .map(EntityCount::parseEntry)
-                        .toList()
+                        .collect(Collectors.toSet())
         );
     }
 
@@ -115,19 +117,19 @@ public class ReviewController {
     }
 
 
-    @DeleteMapping("/{sketch}")
+    @DeleteMapping("")
     @Operation(
             summary = "Delete review",
             description = "Delete review on a certain sketch"
     )
-    public ResponseEntity<String> update(
-            @PathVariable(name = "sketch")
-                    String sketch,
+    public ResponseEntity<String> delete(
+            @RequestParam(name = "sketch")
+                    Set<String> sketches,
             Authentication authentication
-    ) throws EntityNotFoundException {
-        reviewService.delete(sketch, authentication);
+    ) {
+        reviewService.delete(sketches, authentication);
         return new ResponseEntity<>(
-                "Review on sketch with id " + sketch + " deleted!",
+                "Reviews on provided sketches deleted!",
                 HttpStatus.NO_CONTENT
         );
     }

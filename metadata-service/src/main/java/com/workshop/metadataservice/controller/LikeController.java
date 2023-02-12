@@ -36,15 +36,15 @@ public class LikeController {
             summary = "Count sketches' likes",
             description = "Returns amount of sketches' likes"
     )
-    public ResponseEntity<List<EntityCount>> count(
-            @PathParam(value = "sketch")
+    public ResponseEntity<Set<EntityCount>> count(
+            @RequestParam(value = "sketch")
                     Set<String> sketches
     ) {
         return ResponseEntity.ok(
                 likeService.count(sketches)
                         .entrySet().stream()
                         .map(EntityCount::parseEntry)
-                        .toList()
+                        .collect(Collectors.toSet())
         );
     }
 
@@ -79,7 +79,7 @@ public class LikeController {
     ) throws EntityExistsException {
         return new ResponseEntity<>(
                 likeService
-                        .create(sketches,authentication)
+                        .create(sketches, authentication)
                         .stream()
                         .map(LikeRetrieve::parseLike)
                         .collect(Collectors.toSet()),

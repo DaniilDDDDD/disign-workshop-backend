@@ -5,9 +5,8 @@ import com.workshop.contentservice.document.Sketch;
 import com.workshop.contentservice.document.Tag;
 import com.workshop.contentservice.dto.sketch.SketchCreate;
 import com.workshop.contentservice.dto.sketch.SketchUpdate;
-import com.workshop.contentservice.repository.SketchRepository;
 import com.workshop.contentservice.repository.TagRepository;
-import com.workshop.contentservice.security.JwtTokenProvider;
+import com.workshop.contentservice.repository.sketch.SketchRepository;
 import com.workshop.contentservice.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,14 +38,44 @@ public class SketchService {
     @Autowired
     public SketchService(
             SketchRepository sketchRepository,
-            TagRepository tagRepository,
-            JwtTokenProvider jwtTokenProvider) {
+            TagRepository tagRepository) {
         this.sketchRepository = sketchRepository;
         this.tagRepository = tagRepository;
     }
 
 
-    public List<Sketch> findAllPublic(int page, int size, String sort) {
+    public List<Sketch> findAllPublicByTagsAndName(
+            List<String> tagsNames, List<String> name, int page, int size, String sort) {
+
+        if (!tagsNames.isEmpty() && !name.isEmpty()) {
+            List<Tag> tags = tagRepository.findAllByNameIn(tagsNames);
+
+            return sketchRepository.findAllByTagsAndName(
+                    tags,
+                    name,
+                    Access.PUBLIC,
+                    PageRequest.of(page, size, Sort.by(sort))
+            );
+        }
+
+        if (!tagsNames.isEmpty()) {
+            List<Tag> tags = tagRepository.findAllByNameIn(tagsNames);
+
+            return sketchRepository.findAllByTagsAndAccess(
+                    tags,
+                    Access.PUBLIC,
+                    PageRequest.of(page, size, Sort.by(sort))
+            );
+        }
+
+        if (!name.isEmpty()) {
+            return sketchRepository.findAllByNameAndAccess(
+                    name,
+                    Access.PUBLIC,
+                    PageRequest.of(page, size, Sort.by(sort))
+            );
+        }
+
         return sketchRepository.findAllByAccess(
                 Access.PUBLIC,
                 PageRequest.of(page, size, Sort.by(sort))
@@ -62,44 +91,6 @@ public class SketchService {
     }
 
 
-    public List<Sketch> findPublicByName(
-            List<String> name, int page, int size, String sort
-    ) throws EntityNotFoundException {
-        if (name.size() == 0)
-            return List.of();
-        if (name.size() == 1) {
-            Optional<Sketch> sketch = sketchRepository.findByNameAndAccess(
-                    name.get(0),
-                    Access.PUBLIC
-            );
-            if (sketch.isEmpty())
-                throw new EntityNotFoundException("Sketch with provided name not found!");
-            return List.of(sketch.get());
-        } else {
-            return sketchRepository.findAllByNameAndAccess(
-                    name,
-                    Access.PUBLIC,
-                    PageRequest.of(page, size, Sort.by(sort))
-            );
-        }
-    }
-
-
-    public List<Sketch> findAllPublicByTagContains(
-            List<String> tagNames,
-            int page, int size, String sort
-    ) {
-
-        List<Tag> tags = tagRepository.findAllByNameIn(tagNames);
-
-        return sketchRepository.findAllByTagsAndAccess(
-                tags,
-                Access.PUBLIC,
-                PageRequest.of(page, size, Sort.by(sort))
-        );
-    }
-
-
     public List<Sketch> findAllByAuthorEmail(
             String authorEmail, int page, int size, String sort
     ) {
@@ -111,6 +102,9 @@ public class SketchService {
     public Sketch create(
             SketchCreate sketchCreate, Authentication authentication
     ) throws EntityExistsException, IllegalArgumentException, IOException {
+
+        if (sketchRepository.findByName(sketchCreate.getName()).isPresent())
+            throw new EntityExistsException("Sketch with provided name exists!");
 
         Map<String, String> credentials = (Map<String, String>) authentication.getCredentials();
 

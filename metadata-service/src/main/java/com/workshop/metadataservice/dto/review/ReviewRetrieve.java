@@ -26,6 +26,7 @@ public class ReviewRetrieve {
                 .rating(review.getRating())
                 .text(review.getText())
                 .date(review.getDate())
+                .files(review.getFiles())
                 .build();
     }
 }

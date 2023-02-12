@@ -53,7 +53,7 @@ public class LikeService {
                             if (!sketchRepository.existsById(sketch))
                                 return null;
 
-                                Optional<Like> likeData = likeRepository.findBySketchAndUser(sketch, userEmail);
+                            Optional<Like> likeData = likeRepository.findBySketchAndUser(sketch, userEmail);
                             if (likeData.isEmpty())
                                 return likeRepository.save(
                                         Like.builder()
@@ -74,14 +74,7 @@ public class LikeService {
     public void delete(
             Set<String> sketches, Authentication authentication
     ) {
-        String userEmail = (String) authentication.getPrincipal();
-        sketches.forEach(
-                sketch -> {
-                    Optional<Like> like = likeRepository.findBySketchAndUser(sketch, userEmail);
-                    if (like.isPresent() && Objects.equals(like.get().getUser(), userEmail))
-                        likeRepository.delete(like.get());
-                }
-        );
+        likeRepository.deleteAllBySketchInAndUser(sketches, (String) authentication.getPrincipal());
     }
 
 }

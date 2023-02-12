@@ -8,16 +8,17 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import javax.persistence.Id;
 import java.util.Date;
 
 @Document("like")
 @Getter
 @Setter
 @Builder
-@CompoundIndex(def = "{'sketch': 1, 'number': 1}", unique = true)
+@CompoundIndex(def = "{'sketch': 1, 'user': 1}", unique = true)
 public class Like {
 
-    @MongoId
+    @Id
     private String id;
 
     private String sketch;
