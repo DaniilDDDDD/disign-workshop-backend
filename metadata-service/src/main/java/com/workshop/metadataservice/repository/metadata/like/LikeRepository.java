@@ -1,4 +1,4 @@
-package com.workshop.metadataservice.repository.metadata;
+package com.workshop.metadataservice.repository.metadata.like;
 
 import com.workshop.metadataservice.document.metadata.Like;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -9,9 +9,7 @@ import java.util.Set;
 
 
 @Repository
-public interface LikeRepository extends MongoRepository<Like, String> {
-
-    Long countAllBySketch(String sketch);
+public interface LikeRepository extends MongoRepository<Like, String>, LikeRepositoryCustom {
 
     Optional<Like> findBySketchAndUser(String sketch, String user);
     Set<Like> findAllBySketchIn(Set<String> sketches);

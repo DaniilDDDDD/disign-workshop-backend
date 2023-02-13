@@ -2,10 +2,11 @@ package com.workshop.metadataservice.service;
 
 
 import com.workshop.metadataservice.document.metadata.Comment;
+import com.workshop.metadataservice.dto.EntityCount;
 import com.workshop.metadataservice.dto.comment.CommentCreate;
 import com.workshop.metadataservice.dto.comment.CommentUpdate;
 import com.workshop.metadataservice.repository.content.SketchRepository;
-import com.workshop.metadataservice.repository.metadata.CommentRepository;
+import com.workshop.metadataservice.repository.metadata.comment.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -32,13 +32,8 @@ public class CommentService {
     }
 
 
-    // TODO: refactor with aggregation function on persistence level
-    public Map<String, Long> count(Set<String> sketches) {
-        return sketches.stream().collect(
-                Collectors.toMap(
-                        e -> e,
-                        commentRepository::countAllBySketch
-                ));
+    public List<EntityCount> count(Set<String> sketches) {
+        return commentRepository.countSketchesComments(sketches);
     }
 
 
@@ -66,9 +61,9 @@ public class CommentService {
 
 
     public Comment update(
-        String id,
-        Authentication authentication,
-        CommentUpdate update
+            String id,
+            Authentication authentication,
+            CommentUpdate update
     ) throws EntityNotFoundException, AccessDeniedException {
         Optional<Comment> commentData = commentRepository.findById(id);
         if (commentData.isEmpty())

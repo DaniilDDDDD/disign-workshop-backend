@@ -12,8 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityExistsException;
-import javax.persistence.EntityNotFoundException;
-import javax.websocket.server.PathParam;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,18 +32,14 @@ public class LikeController {
     @GetMapping("/count")
     @Operation(
             summary = "Count sketches' likes",
-            description = "Returns amount of sketches' likes"
+            description = "Returns amount of sketches' likes. " +
+                    "If any of provided sketches does not exist or has no likes - it would not be returned."
     )
-    public ResponseEntity<Set<EntityCount>> count(
+    public ResponseEntity<List<EntityCount>> count(
             @RequestParam(value = "sketch")
-                    Set<String> sketches
+            Set<String> sketches
     ) {
-        return ResponseEntity.ok(
-                likeService.count(sketches)
-                        .entrySet().stream()
-                        .map(EntityCount::parseEntry)
-                        .collect(Collectors.toSet())
-        );
+        return ResponseEntity.ok(likeService.count(sketches));
     }
 
 
@@ -56,7 +50,7 @@ public class LikeController {
     )
     public ResponseEntity<Set<LikeRetrieve>> retrieve(
             @RequestParam(value = "sketch")
-                    Set<String> sketches
+            Set<String> sketches
     ) {
         return ResponseEntity.ok(
                 likeService.retrieve(sketches)
@@ -74,7 +68,7 @@ public class LikeController {
     )
     public ResponseEntity<Set<LikeRetrieve>> create(
             @RequestParam("sketch")
-                    Set<String> sketches,
+            Set<String> sketches,
             Authentication authentication
     ) throws EntityExistsException {
         return new ResponseEntity<>(
@@ -95,7 +89,7 @@ public class LikeController {
     )
     public ResponseEntity<String> delete(
             @RequestParam("sketch")
-                    Set<String> sketches,
+            Set<String> sketches,
             Authentication authentication
     ) {
         likeService.delete(

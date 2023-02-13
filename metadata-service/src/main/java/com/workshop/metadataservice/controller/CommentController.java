@@ -40,16 +40,11 @@ public class CommentController {
             summary = "Count sketches' comments",
             description = "Returns amount of sketches' comments"
     )
-    public ResponseEntity<Set<EntityCount>> count(
+    public ResponseEntity<List<EntityCount>> count(
             @RequestParam(value = "sketch")
-                Set<String> sketches
+            Set<String> sketches
     ) {
-        return ResponseEntity.ok(
-                commentService.count(sketches)
-                        .entrySet().stream()
-                        .map(EntityCount::parseEntry)
-                        .collect(Collectors.toSet())
-        );
+        return ResponseEntity.ok(commentService.count(sketches));
     }
 
 
@@ -60,7 +55,7 @@ public class CommentController {
     )
     public ResponseEntity<List<CommentRetrieve>> list(
             @PathVariable(name = "sketch")
-                    String sketch
+            String sketch
     ) {
         return ResponseEntity.ok(
                 commentService.list(sketch)
@@ -78,10 +73,10 @@ public class CommentController {
     )
     public ResponseEntity<CommentRetrieve> create(
             @PathVariable(name = "sketch")
-                    String sketch,
+            String sketch,
             @RequestBody
             @Valid
-                    CommentCreate commentCreate,
+            CommentCreate commentCreate,
             Authentication authentication
     ) throws EntityExistsException {
         return new ResponseEntity<>(
@@ -104,10 +99,10 @@ public class CommentController {
     )
     public ResponseEntity<CommentRetrieve> update(
             @PathVariable(name = "id")
-                    String id,
+            String id,
             @Valid
             @RequestBody
-                    CommentUpdate commentUpdate,
+            CommentUpdate commentUpdate,
             Authentication authentication
     ) throws EntityNotFoundException {
         return ResponseEntity.ok(
@@ -129,7 +124,7 @@ public class CommentController {
     )
     public ResponseEntity<String> delete(
             @PathVariable(name = "id")
-                    String id,
+            String id,
             Authentication authentication
     ) throws EntityNotFoundException {
         commentService.delete(id, authentication);

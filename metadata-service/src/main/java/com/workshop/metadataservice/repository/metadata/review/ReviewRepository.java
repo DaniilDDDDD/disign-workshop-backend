@@ -1,4 +1,4 @@
-package com.workshop.metadataservice.repository.metadata;
+package com.workshop.metadataservice.repository.metadata.review;
 
 import com.workshop.metadataservice.document.metadata.Review;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -10,7 +10,7 @@ import java.util.Set;
 
 
 @Repository
-public interface ReviewRepository extends MongoRepository<Review, String> {
+public interface ReviewRepository extends MongoRepository<Review, String>, ReviewRepositoryCustom {
 
     boolean existsBySketchAndUser(String sketch, String user);
 
@@ -18,7 +18,5 @@ public interface ReviewRepository extends MongoRepository<Review, String> {
 
     List<Review> findAllBySketch(String sketch);
     Optional<Review> findBySketchAndUser(String sketch, String user);
-
-    Long countAllBySketch(String sketch);
 
 }

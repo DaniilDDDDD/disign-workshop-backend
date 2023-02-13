@@ -1,9 +1,10 @@
 package com.workshop.metadataservice.service;
 
 import com.workshop.metadataservice.document.metadata.Review;
+import com.workshop.metadataservice.dto.EntityCount;
 import com.workshop.metadataservice.dto.review.ReviewData;
 import com.workshop.metadataservice.repository.content.SketchRepository;
-import com.workshop.metadataservice.repository.metadata.ReviewRepository;
+import com.workshop.metadataservice.repository.metadata.review.ReviewRepository;
 import com.workshop.metadataservice.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,14 +44,10 @@ public class ReviewService {
     }
 
 
-    public Map<String, Long> count(
+    public List<EntityCount> count(
             Set<String> sketches
     ) {
-        return sketches.stream().collect(
-                Collectors.toMap(
-                        e -> e,
-                        reviewRepository::countAllBySketch
-                ));
+        return reviewRepository.countAllBySketch(sketches);
     }
 
 

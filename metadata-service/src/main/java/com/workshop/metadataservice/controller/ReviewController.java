@@ -39,16 +39,11 @@ public class ReviewController {
             summary = "Count sketches' reviews",
             description = "Returns amount of sketches' reviews"
     )
-    public ResponseEntity<Set<EntityCount>> count(
+    public ResponseEntity<List<EntityCount>> count(
             @RequestParam(value = "sketch")
                     Set<String> sketches
     ) {
-        return ResponseEntity.ok(
-                reviewService.count(sketches)
-                        .entrySet().stream()
-                        .map(EntityCount::parseEntry)
-                        .collect(Collectors.toSet())
-        );
+        return ResponseEntity.ok(reviewService.count(sketches));
     }
 
 

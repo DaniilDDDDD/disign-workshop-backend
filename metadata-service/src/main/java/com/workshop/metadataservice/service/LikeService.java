@@ -2,8 +2,9 @@ package com.workshop.metadataservice.service;
 
 
 import com.workshop.metadataservice.document.metadata.Like;
+import com.workshop.metadataservice.dto.EntityCount;
 import com.workshop.metadataservice.repository.content.SketchRepository;
-import com.workshop.metadataservice.repository.metadata.LikeRepository;
+import com.workshop.metadataservice.repository.metadata.like.LikeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class LikeService {
 
     @Autowired
     public LikeService(LikeRepository likeRepository,
-            SketchRepository sketchRepository
+                       SketchRepository sketchRepository
     ) {
         this.likeRepository = likeRepository;
         this.sketchRepository = sketchRepository;
@@ -32,12 +33,8 @@ public class LikeService {
     }
 
 
-    public Map<String, Long> count(Set<String> sketches) {
-        return sketches.stream().collect(
-                Collectors.toMap(
-                        e -> e,
-                        likeRepository::countAllBySketch
-                ));
+    public List<EntityCount> count(Set<String> sketches) {
+        return likeRepository.countSketchesLikes(sketches);
     }
 
 
