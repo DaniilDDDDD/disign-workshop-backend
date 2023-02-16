@@ -18,13 +18,15 @@ spring:
             non_contextual_creation: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
+#      ddl-auto: none
       ddl-auto: update
   flyway:
+#    enabled: true
     enabled: false
-    locations: classpath:db/migrations
+#    locations: classpath:db/migrations
     schemas: main
-    baseline-on-migrate: true
-    baseline-version: 0.1
+#    baseline-on-migrate: true
+    baseline-version: 2
   servlet:
     multipart:
       max-file-size: 100MB
