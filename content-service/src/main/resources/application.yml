@@ -19,6 +19,12 @@ spring:
       max-file-size: -1
       max-request-size: -1
 
+mongock:
+  migration-scan-package:
+    - com.workshop.contentservice.migration
+  enabled: false
+  runner-type: initializingbean
+
 
 filesRoot: content-service/src/main/resources/media/content/
 maxFilesAmount: 15
