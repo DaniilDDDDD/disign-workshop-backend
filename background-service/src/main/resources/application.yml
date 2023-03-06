@@ -1,0 +1,33 @@
+server:
+  port: 8084
+  servlet:
+    context-path: /v1/api/background
+
+
+mongodb:
+  metadata:
+    host: localhost
+    port: 27017
+    database: workshop-metadata
+    username: workshop
+    password: qwerty1234
+    auto-index-creation: true
+    authentication-database: workshop-metadata
+  content:
+    host: localhost
+    port: 27017
+    database: workshop-content
+    username: workshop
+    password: qwerty1234
+    auto-index-creation: true
+    authentication-database: workshop-content
+
+
+postgres:
+  auth:
+    url: jdbc:postgresql://localhost:5432/workshop-auth
+    username: workshop
+    password: qwerty1234
+    default_schema: main
+    dialect: org.hibernate.dialect.PostgreSQLDialect
+    ddl-auto: update
