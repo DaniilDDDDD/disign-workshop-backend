@@ -1,4 +1,4 @@
-package com.workshop.backgroundservice.configuration;
+package com.workshop.backgroundservice.configuration.datasources;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;

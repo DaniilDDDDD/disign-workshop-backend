@@ -27,6 +27,11 @@ spring:
     schemas: main
 #    baseline-on-migrate: true
     baseline-version: 2
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
   servlet:
     multipart:
       max-file-size: 100MB
@@ -65,6 +70,13 @@ jwt:
     expired: 36000000
   refresh-token:
     expired: 86400000
+
+
+rabbitmq:
+  authentication-confirmation:
+    topic-exchange-name: authentication
+    queue-name: confirmation
+    routing-key: authentication-confirmation
 
 
 springdoc:

@@ -8,6 +8,7 @@ import com.workshop.authservice.dto.user.UserUpdate;
 import com.workshop.authservice.model.User;
 import com.workshop.authservice.security.JwtTokenProvider;
 import com.workshop.authservice.service.UserService;
+import com.workshop.authservice.service.messaging.AuthenticationConfirmationRabbitMQService;
 import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,11 +37,13 @@ public class UserController {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationConfirmationRabbitMQService authenticationConfirmationRabbitMQService;
 
     @Autowired
-    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider) {
+    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider, AuthenticationConfirmationRabbitMQService authenticationConfirmationRabbitMQService) {
         this.userService = userService;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.authenticationConfirmationRabbitMQService = authenticationConfirmationRabbitMQService;
     }
 
 
@@ -102,6 +105,7 @@ public class UserController {
                     UserRegister userRegister
     ) throws EntityExistsException {
         User user = userService.create(userRegister);
+        authenticationConfirmationRabbitMQService.sendConfirmation(user);
         return new ResponseEntity<>(
                 UserInfo.parseUser(user),
                 HttpStatus.CREATED

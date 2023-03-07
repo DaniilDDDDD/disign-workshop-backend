@@ -4,6 +4,14 @@ server:
     context-path: /v1/api/background
 
 
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+
 mongodb:
   metadata:
     host: localhost
@@ -31,3 +39,14 @@ postgres:
     default_schema: main
     dialect: org.hibernate.dialect.PostgreSQLDialect
     ddl-auto: update
+
+
+rabbitmq:
+  authentication-confirmation:
+    topic-exchange-name: authentication
+    queue-name: confirmation
+    routing-key: authentication-confirmation
+
+
+initialization:
+  expired: 86400000

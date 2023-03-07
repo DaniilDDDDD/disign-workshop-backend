@@ -1,4 +1,4 @@
-package com.workshop.backgroundservice.configuration;
+package com.workshop.backgroundservice.configuration.datasources;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
