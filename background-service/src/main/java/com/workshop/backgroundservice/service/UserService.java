@@ -1,6 +1,5 @@
 package com.workshop.backgroundservice.service;
 
-import com.workshop.backgroundservice.dto.user.UserOnConfirm;
 import com.workshop.backgroundservice.model.user.InitializationToken;
 import com.workshop.backgroundservice.model.user.Status;
 import com.workshop.backgroundservice.model.user.User;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -51,9 +49,9 @@ public class UserService {
     }
 
 
-    public InitializationToken create(UserOnConfirm userOnConfirm) throws EntityNotFoundException {
+    public InitializationToken create(String email) throws EntityNotFoundException {
 
-        Optional<User> user = userRepository.findUserByEmail(userOnConfirm.getEmail());
+        Optional<User> user = userRepository.findUserByEmail(email);
         if (user.isEmpty())
             throw new EntityNotFoundException("No user with provided email!");
 

@@ -191,8 +191,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
                 .firstName(userRegister.getFirstName())
                 .lastName(userRegister.getLastName())
                 .bio(userRegister.getBio())
-                // TODO: change status to INITIALIZED when authentication confirmation would be created
-                .status(Status.ACTIVE)
+                .status(Status.DISABLED)
                 .loginSource(LoginSource.LOCAL)
                 .password(passwordEncoder.encode(userRegister.getPassword()))
                 .build();

@@ -28,7 +28,6 @@ public class InitializationToken {
     private Date expirationDate;
 
     @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-    @JoinColumn(name = "user", nullable = false)
     private User user;
 
 }

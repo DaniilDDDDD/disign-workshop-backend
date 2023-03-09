@@ -40,7 +40,11 @@ public class UserController {
     private final AuthenticationConfirmationRabbitMQService authenticationConfirmationRabbitMQService;
 
     @Autowired
-    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider, AuthenticationConfirmationRabbitMQService authenticationConfirmationRabbitMQService) {
+    public UserController(
+            UserService userService,
+            JwtTokenProvider jwtTokenProvider,
+            AuthenticationConfirmationRabbitMQService authenticationConfirmationRabbitMQService
+    ) {
         this.userService = userService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.authenticationConfirmationRabbitMQService = authenticationConfirmationRabbitMQService;
@@ -166,7 +170,6 @@ public class UserController {
     }
 
 
-    // TODO: move avatar update to another endpoint
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @Operation(
             summary = "Update self",

@@ -43,7 +43,7 @@ public class AuthenticationDatabaseConfiguration {
         em.setJpaVendorAdapter(vendorAdapter);
 
         HashMap<String, Object> properties = new HashMap<>();
-        properties.put("hibernate.ddl-auto", environment.getProperty("postgres.auth.ddl-auto"));
+        properties.put("hibernate.hbm2ddl.auto", environment.getProperty("postgres.auth.ddl-auto"));
         properties.put("hibernate.dialect", environment.getProperty("postgres.auth.dialect"));
 
         em.setJpaPropertyMap(properties);
