@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class UserService {
+public class AuthService {
 
     @Value("${initialization.expired}")
     private long initializationValidityInMilliseconds;
@@ -24,7 +26,7 @@ public class UserService {
     private final InitializationTokenRepository initializationTokenRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, InitializationTokenRepository initializationTokenRepository) {
+    public AuthService(UserRepository userRepository, InitializationTokenRepository initializationTokenRepository) {
         this.userRepository = userRepository;
         this.initializationTokenRepository = initializationTokenRepository;
     }
@@ -62,6 +64,17 @@ public class UserService {
                 .build();
 
         return initializationTokenRepository.save(token);
+    }
+
+    @Transactional
+    public void removeExpiredUsers() {
+        List<InitializationToken> expiredTokens = initializationTokenRepository
+                .findAllByExpirationDateBefore(new Date());
+
+        List<User> expiredUsers = expiredTokens.stream().map(InitializationToken::getUser).toList();
+
+        initializationTokenRepository.deleteAll(expiredTokens);
+        userRepository.deleteAll(expiredUsers);
     }
 
 }

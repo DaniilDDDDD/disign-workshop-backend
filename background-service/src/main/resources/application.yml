@@ -10,17 +10,8 @@ spring:
     port: 5672
     username: guest
     password: guest
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: panushind@gmail.com
-    password: qwerty1234
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+  profiles:
+    active: prod
 
 
 mongodb:
@@ -61,7 +52,3 @@ rabbitmq:
 
 initialization:
   expired: 86400000
-
-
-email:
-  from: panushind@gmail.com

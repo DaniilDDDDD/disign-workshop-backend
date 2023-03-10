@@ -2,6 +2,7 @@ package com.workshop.backgroundservice.service.email;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 
 @Service
+@Profile("prod")
 public class EmailServiceImpl implements EmailService {
 
     @Value("email.from")

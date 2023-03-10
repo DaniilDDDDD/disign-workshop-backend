@@ -3,11 +3,12 @@ package com.workshop.backgroundservice.handler;
 
 import com.workshop.backgroundservice.dto.user.UserOnConfirm;
 import com.workshop.backgroundservice.model.user.InitializationToken;
-import com.workshop.backgroundservice.service.UserService;
+import com.workshop.backgroundservice.service.AuthService;
 import com.workshop.backgroundservice.service.email.EmailService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -16,6 +17,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 @Component
+@Profile("prod")
 public class AuthenticationRabbitMQMessageReceiver {
 
     private String url;
@@ -26,15 +28,15 @@ public class AuthenticationRabbitMQMessageReceiver {
     @Value("${server.servlet.context-path}")
     private String route;
 
-    private final UserService userService;
+    private final AuthService authService;
     private final EmailService emailService;
 
     @Autowired
     public AuthenticationRabbitMQMessageReceiver(
-            UserService userService,
+            AuthService authService,
             EmailService emailService
     ) {
-        this.userService = userService;
+        this.authService = authService;
         this.emailService = emailService;
     }
 
@@ -52,7 +54,7 @@ public class AuthenticationRabbitMQMessageReceiver {
     @RabbitListener(queues = {"${rabbitmq.authentication-confirmation.queue-name}"})
     public void addUserForConfirmation(UserOnConfirm message) {
         try {
-            InitializationToken token = userService.create(message.getEmail());
+            InitializationToken token = authService.create(message.getEmail());
             emailService.sendEmail(
                     message.getEmail(),
                     "Authentication confirmation",

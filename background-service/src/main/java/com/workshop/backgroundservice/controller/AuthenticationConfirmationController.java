@@ -1,6 +1,6 @@
 package com.workshop.backgroundservice.controller;
 
-import com.workshop.backgroundservice.service.UserService;
+import com.workshop.backgroundservice.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "AuthenticationConfirmation", description = "AuthenticationConfirmation's endpoints")
 public class AuthenticationConfirmationController {
 
-    private final UserService userService;
+    private final AuthService authService;
 
     @Autowired
-    public AuthenticationConfirmationController(UserService userService) {
-        this.userService = userService;
+    public AuthenticationConfirmationController(AuthService authService) {
+        this.authService = authService;
     }
 
 
@@ -31,7 +31,7 @@ public class AuthenticationConfirmationController {
     public ResponseEntity<String> confirm(
             @PathVariable String token
     ) {
-        String result = userService.confirm(token) ?
+        String result = authService.confirm(token) ?
                 "User was confirmed!" :
                 "User was not confirmed!";
 
