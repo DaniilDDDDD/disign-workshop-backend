@@ -52,3 +52,10 @@ rabbitmq:
 
 initialization:
   expired: 86400000
+
+
+springdoc:
+  api-docs:
+    path: /docs
+  swagger-ui:
+    path: /docs/swagger.html
