@@ -29,14 +29,14 @@ public class DatabaseFiltration {
 
 
     @Async
-    @Scheduled(cron = "${database.auth.filtration.cron}") //prod: clear expired users avery day at 4:00 AM
+    @Scheduled(cron = "${task.auth.filtration.cron}") //prod: clear expired users avery day at 4:00 AM
     public void clearExpiredUser() {
         authService.removeExpiredUsers();
     }
 
 
     @Async
-    @Scheduled(cron = "${database.metadata.filtration.cron}")
+    @Scheduled(cron = "${task.metadata.filtration.cron}")
     public void clearNonValidMetadata() {
         Date to = new Date();
         Calendar calendar  = Calendar.getInstance();
