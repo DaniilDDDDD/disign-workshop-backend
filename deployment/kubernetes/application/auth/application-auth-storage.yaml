@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mongo-content-persistent-volume
+  name: application-auth-persistent-volume
   labels:
     type: local
-    app: mongo-content
+    app: application-auth
 spec:
   storageClassName: manual
   capacity:
@@ -12,14 +12,14 @@ spec:
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: "/data/content"
+    path: "/data/application/auth"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mongo-content-persistent-volume-claim
+  name: application-auth-persistent-volume-claim
   labels:
-    app: mongo-content
+    app: application-auth
 spec:
   storageClassName: manual
   accessModes:

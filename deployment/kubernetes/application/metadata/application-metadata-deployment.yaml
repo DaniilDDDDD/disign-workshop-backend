@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: application-metadata
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: application-metadata
+  template:
+    metadata:
+      labels:
+        app: application-metadata
+    spec:
+      containers:
+        - name: application-metadata
+          image: daniilpanyushin/workshop-metadata:0.1
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: application-metadata-config
+          volumeMounts:
+            - mountPath: /src/main/resources
+              name: application-metadata-volume
+      volumes:
+        - name: application-metadata-volume
+          persistentVolumeClaim:
+            claimName: application-metadata-persistent-volume-claim

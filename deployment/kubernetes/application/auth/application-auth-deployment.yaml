@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: application-auth
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: application-auth
+  template:
+    metadata:
+      labels:
+        app: application-auth
+    spec:
+      containers:
+        - name: application-auth
+          image: daniilpanyushin/workshop-auth:0.1
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: application-auth-config
+          volumeMounts:
+            - mountPath: /src/main/resources
+              name: application-auth-volume
+      volumes:
+        - name: application-auth-volume
+          persistentVolumeClaim:
+            claimName: application-auth-persistent-volume-claim
