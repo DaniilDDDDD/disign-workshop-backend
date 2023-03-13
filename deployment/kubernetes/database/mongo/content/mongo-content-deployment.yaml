@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-content
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-content
+  template:
+    metadata:
+      labels:
+        app: mongo-content
+    spec:
+      containers:
+        - name: mongo-content
+          image: mongo:6.0.4
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 27017
+          envFrom:
+            - configMapRef:
+                name: mongo-content-config
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongo-content-volume
+      volumes:
+        - name: mongo-content-volume
+          persistentVolumeClaim:
+            claimName: mongo-content-persistent-volume-claim

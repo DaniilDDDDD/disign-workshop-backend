@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-content
+  labels:
+    app: mongo-content
+spec:
+  type: NodePort
+  ports:
+    - port: 27017
+  selector:
+    app: mongo-content
