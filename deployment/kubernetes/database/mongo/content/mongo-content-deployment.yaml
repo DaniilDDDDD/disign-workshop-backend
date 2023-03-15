@@ -15,6 +15,7 @@ spec:
       containers:
         - name: mongo-content
           image: mongo:6.0.4
+          args: ["--dbpath", "/data/db"]
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 27017
@@ -24,7 +25,12 @@ spec:
           volumeMounts:
             - mountPath: /data/db
               name: mongo-content-volume
+            - mountPath: /docker-entrypoint-initdb.d
+              name: mongo-content-init
       volumes:
         - name: mongo-content-volume
           persistentVolumeClaim:
             claimName: mongo-content-persistent-volume-claim
+        - name: mongo-content-init
+          configMap:
+            name: mongo-content-init-config
