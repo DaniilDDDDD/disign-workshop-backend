@@ -15,7 +15,6 @@ spec:
       containers:
         - name: mongo-metadata
           image: mongo:6.0.4
-          args: ["--dbpath", "/data/db"]
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 27017
@@ -23,14 +22,14 @@ spec:
             - configMapRef:
                 name: mongo-metadata-config
           volumeMounts:
-            - mountPath: /data/db
-              name: mongo-metadata-volume
             - mountPath: /docker-entrypoint-initdb.d
               name: mongo-metadata-init
+            - mountPath: /data/db
+              name: mongo-metadata-volume
       volumes:
+        - name: mongo-metadata-init
+          configMap:
+            name: mongo-metadata-init-config
         - name: mongo-metadata-volume
           persistentVolumeClaim:
             claimName: mongo-metadata-persistent-volume-claim
-        - name: mongo-content-init
-          configMap:
-            name: mongo-metadata-init-config
