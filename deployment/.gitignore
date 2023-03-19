@@ -1,3 +1,5 @@
 **config.yaml
 **secret.yaml
 **init.js
+
+/kubernetes/application/auth/application-auth.properties
