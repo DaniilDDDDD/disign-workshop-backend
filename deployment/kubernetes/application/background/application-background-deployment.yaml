@@ -1,29 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: application-content
+  name: application-background
 spec:
   selector:
     matchLabels:
-      app: application-content
+      app: application-background
   template:
     metadata:
       labels:
-        app: application-content
+        app: application-background
     spec:
       containers:
-        - name: application-content
-          image: daniilpanyushin/workshop-content:0.1
+        - name: application-background
+          image: daniilpanyushin/workshop-background:0.1
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 8080
           envFrom:
             - configMapRef:
-                name: application-content-config
+                name: application-background-config
           volumeMounts:
             - mountPath: /src/main/resources
-              name: application-content-volume
+              name: application-background-volume
       volumes:
-        - name: application-content-volume
+        - name: application-background-volume
           persistentVolumeClaim:
-            claimName: application-content-persistent-volume-claim
+            claimName: application-background-persistent-volume-claim

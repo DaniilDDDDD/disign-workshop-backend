@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: application-content-persistent-volume
+  name: application-background-persistent-volume
   labels:
     type: local
-    app: application-content
+    app: application-background
 spec:
   storageClassName: manual
   capacity:
@@ -12,14 +12,14 @@ spec:
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: "/data/application/content"
+    path: "/data/application/background"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: application-content-persistent-volume-claim
+  name: application-background-persistent-volume-claim
   labels:
-    app: application-content
+    app: application-background
 spec:
   storageClassName: manual
   accessModes:

@@ -84,5 +84,3 @@ springdoc:
     path: /docs
   swagger-ui:
     path: /docs/swagger.html
-
-
