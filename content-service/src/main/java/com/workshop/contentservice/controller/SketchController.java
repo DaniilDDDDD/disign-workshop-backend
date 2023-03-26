@@ -71,7 +71,6 @@ public class SketchController {
     }
 
 
-
     @GetMapping("/{id}")
     @Operation(
             summary = "Retrieve sketch",

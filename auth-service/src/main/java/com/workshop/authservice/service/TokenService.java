@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.Optional;
 
@@ -57,5 +58,10 @@ public class TokenService {
         token.setValue(value);
         return tokenRepository.save(token);
     }
+
+
+    public void deleteUserTokens(User user) {
+        tokenRepository.deleteAllByOwnerId(user.getId());
+    };
 
 }

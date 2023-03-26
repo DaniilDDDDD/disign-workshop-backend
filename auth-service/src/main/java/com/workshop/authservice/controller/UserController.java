@@ -7,6 +7,7 @@ import com.workshop.authservice.dto.user.UserRegister;
 import com.workshop.authservice.dto.user.UserUpdate;
 import com.workshop.authservice.model.User;
 import com.workshop.authservice.security.JwtTokenProvider;
+import com.workshop.authservice.service.TokenService;
 import com.workshop.authservice.service.UserService;
 import com.workshop.authservice.service.messaging.AuthenticationConfirmationRabbitMQService;
 import io.jsonwebtoken.JwtException;
@@ -38,16 +39,18 @@ public class UserController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationConfirmationRabbitMQService authenticationConfirmationRabbitMQService;
+    private final TokenService tokenService;
 
     @Autowired
     public UserController(
             UserService userService,
             JwtTokenProvider jwtTokenProvider,
-            AuthenticationConfirmationRabbitMQService authenticationConfirmationRabbitMQService
-    ) {
+            AuthenticationConfirmationRabbitMQService authenticationConfirmationRabbitMQService,
+            TokenService tokenService) {
         this.userService = userService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.authenticationConfirmationRabbitMQService = authenticationConfirmationRabbitMQService;
+        this.tokenService = tokenService;
     }
 
 
@@ -191,7 +194,7 @@ public class UserController {
     }
 
 
-    @DeleteMapping("")
+    @DeleteMapping("/delete")
     @Operation(
             summary = "Delete self",
             description = "Delete authenticated user."
@@ -200,6 +203,7 @@ public class UserController {
             Authentication authentication
     ) throws IOException {
         User user = userService.getUserByPrincipal(authentication.getPrincipal());
+        tokenService.deleteUserTokens(user);
         userService.delete(user);
         return ResponseEntity.noContent().build();
     }

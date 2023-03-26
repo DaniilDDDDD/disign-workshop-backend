@@ -7,6 +7,7 @@ import com.workshop.authservice.security.JwtTokenProvider;
 import com.workshop.authservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -48,10 +49,14 @@ public class SecurityConfiguration {
                     .sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 .and()
                     .authorizeRequests()
-                        .antMatchers("/login**", "/register**", "/refresh**").permitAll()
+                        .antMatchers(
+                                "/login*",
+                                "/register*",
+                                "/refresh*"
+                        ).permitAll()
+                        .antMatchers(HttpMethod.GET, "/").permitAll()
                         .antMatchers("/oauth2**").permitAll()
-                        .antMatchers("/").permitAll() //login page to test API
-                        .antMatchers("/docs/**").hasAnyRole("ROLE_DEVELOPER", "ROLE_ADMIN")
+                        .antMatchers("/docs/**").hasAnyRole("DEVELOPER", "ADMIN")
                     .anyRequest().authenticated()
                 .and()
                     .apply(new JwtFilterChainConfigurer(jwtTokenProvider))

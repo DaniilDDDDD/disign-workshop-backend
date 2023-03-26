@@ -172,6 +172,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
             user.setUsername((String) attributes.get("name"));
             user.setFirstName((String) attributes.get("given_name"));
             user.setLastName((String) attributes.get("family_name"));
+            user.setLoginSource(source);
             return userRepository.save(user);
 
         } else

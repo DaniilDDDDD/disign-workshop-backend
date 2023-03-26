@@ -37,10 +37,21 @@ public class SecurityConfiguration {
                     .sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 .and()
                     .authorizeRequests()
-                        .antMatchers(HttpMethod.GET, "/sketch*").permitAll()
-//                        .antMatchers("/tags*").hasAnyRole("ROLE_ADMIN", "ROLE_DEVELOPER", "ROLE_MODERATOR")
-                        .antMatchers("/tags*").permitAll()
-                        .antMatchers("/docs/**").hasAnyRole("ROLE_DEVELOPER", "ROLE_ADMIN")
+                        .antMatchers(
+                                HttpMethod.GET,
+                                "/sketches/me*"
+                        ).hasRole("USER")
+                        .antMatchers(
+                                HttpMethod.GET,
+                                "/sketches*",
+                                "/sketches/*"
+                        ).permitAll()
+                        .antMatchers(
+                                HttpMethod.GET,
+                                "/tags*",
+                                "/tags/*"
+                        ).permitAll()
+                        .antMatchers("/docs/**").hasAnyRole("DEVELOPER", "ADMIN")
                     .anyRequest().authenticated()
                 .and()
                     .apply(new JwtFilterChainConfigurer(jwtTokenProvider))

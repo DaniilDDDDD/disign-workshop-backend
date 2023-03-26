@@ -37,7 +37,21 @@ public class SecurityConfiguration {
                     .sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 .and()
                     .authorizeRequests()
-                        .antMatchers(HttpMethod.GET, "/like*").permitAll()
+                        .antMatchers(
+                                HttpMethod.GET,
+                                "/like**",
+                                "/like/**"
+                        ).permitAll()
+                        .antMatchers(
+                                HttpMethod.GET,
+                                "/comment**",
+                                "/comment/**"
+                        ).permitAll()
+                        .antMatchers(
+                                HttpMethod.GET,
+                                "/review**",
+                                "/review/**"
+                        ).permitAll()
                         .antMatchers("/docs/**").hasAnyRole("ROLE_DEVELOPER", "ROLE_ADMIN")
                     .anyRequest().authenticated()
                 .and()
