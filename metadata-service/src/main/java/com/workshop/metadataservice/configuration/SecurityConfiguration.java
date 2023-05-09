@@ -52,7 +52,7 @@ public class SecurityConfiguration {
                                 "/review**",
                                 "/review/**"
                         ).permitAll()
-                        .antMatchers("/docs/**").hasAnyRole("ROLE_DEVELOPER", "ROLE_ADMIN")
+                        .antMatchers("/docs/**").hasAnyRole("DEVELOPER", "ADMIN")
                     .anyRequest().authenticated()
                 .and()
                     .apply(new JwtFilterChainConfigurer(jwtTokenProvider))

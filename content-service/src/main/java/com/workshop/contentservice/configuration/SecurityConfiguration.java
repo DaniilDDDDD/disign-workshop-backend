@@ -39,17 +39,17 @@ public class SecurityConfiguration {
                     .authorizeRequests()
                         .antMatchers(
                                 HttpMethod.GET,
-                                "/sketches/me*"
-                        ).hasRole("USER")
+                                "/sketches/me**"
+                        ).hasRole("CUSTOMER")
                         .antMatchers(
                                 HttpMethod.GET,
-                                "/sketches*",
-                                "/sketches/*"
+                                "/sketches**",
+                                "/sketches/**"
                         ).permitAll()
                         .antMatchers(
                                 HttpMethod.GET,
-                                "/tags*",
-                                "/tags/*"
+                                "/tags**",
+                                "/tags/**"
                         ).permitAll()
                         .antMatchers("/docs/**").hasAnyRole("DEVELOPER", "ADMIN")
                     .anyRequest().authenticated()

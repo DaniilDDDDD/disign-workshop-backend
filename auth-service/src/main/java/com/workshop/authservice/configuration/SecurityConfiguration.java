@@ -50,9 +50,9 @@ public class SecurityConfiguration {
                 .and()
                     .authorizeRequests()
                         .antMatchers(
-                                "/login*",
-                                "/register*",
-                                "/refresh*"
+                                "/login**",
+                                "/register**",
+                                "/refresh**"
                         ).permitAll()
                         .antMatchers(HttpMethod.GET, "/").permitAll()
                         .antMatchers("/oauth2**").permitAll()
