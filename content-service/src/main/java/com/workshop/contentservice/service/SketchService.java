@@ -10,6 +10,10 @@ import com.workshop.contentservice.repository.sketch.SketchRepository;
 import com.workshop.contentservice.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
@@ -24,6 +28,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Service
+@CacheConfig(cacheNames = "sketch")
 public class SketchService {
 
     @Value("${filesRoot}")
@@ -44,6 +49,7 @@ public class SketchService {
     }
 
 
+    @Cacheable
     public List<Sketch> findAllPublicByTagsAndName(
             List<String> tagsNames, List<String> name, int page, int size, String sort) {
 
@@ -83,6 +89,7 @@ public class SketchService {
     }
 
 
+    @Cacheable(key = "#id")
     public Sketch findById(String id) throws EntityNotFoundException {
         Optional<Sketch> sketch = sketchRepository.findById(id);
         if (sketch.isEmpty())
@@ -91,6 +98,7 @@ public class SketchService {
     }
 
 
+    @Cacheable(key = "#authorEmail")
     public List<Sketch> findAllByAuthorEmail(
             String authorEmail, int page, int size, String sort
     ) {
@@ -98,6 +106,7 @@ public class SketchService {
                 authorEmail, PageRequest.of(page, size, Sort.by(sort))
         );
     }
+
 
     public Sketch create(
             SketchCreate sketchCreate, Authentication authentication
@@ -192,6 +201,7 @@ public class SketchService {
     }
 
 
+    @CacheEvict(key = "#id")
     public void delete(
             String id,
             Authentication authentication
