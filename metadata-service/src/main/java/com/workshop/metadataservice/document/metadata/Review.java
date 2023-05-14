@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
 @Setter
 @Builder
 @CompoundIndex(def = "{'sketch': 1, 'user': 1}", unique = true)
-public class Review {
+public class Review implements Serializable {
 
     @Id
     private String id;

@@ -48,7 +48,7 @@ public class LikeController {
             summary = "Retrieve likes",
             description = "Retrieve likes provided sketches"
     )
-    public ResponseEntity<Set<LikeRetrieve>> retrieve(
+    public ResponseEntity<List<LikeRetrieve>> retrieve(
             @RequestParam(value = "sketch")
             Set<String> sketches
     ) {
@@ -56,7 +56,7 @@ public class LikeController {
                 likeService.retrieve(sketches)
                         .stream()
                         .map(LikeRetrieve::parseLike)
-                        .collect(Collectors.toSet())
+                        .collect(Collectors.toList())
         );
     }
 

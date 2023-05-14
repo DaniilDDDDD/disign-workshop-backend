@@ -4,12 +4,13 @@ import com.workshop.metadataservice.document.metadata.Review;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 @Data
 @Builder
-public class ReviewRetrieve {
+public class ReviewRetrieve implements Serializable {
     private String id;
     private String sketch;
     private String user;

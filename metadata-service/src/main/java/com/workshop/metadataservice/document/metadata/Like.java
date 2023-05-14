@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.util.Date;
 
 @Document("like")
@@ -16,7 +17,7 @@ import java.util.Date;
 @Setter
 @Builder
 @CompoundIndex(def = "{'sketch': 1, 'user': 1}", unique = true)
-public class Like {
+public class Like implements Serializable {
 
     @Id
     private String id;

@@ -4,11 +4,12 @@ import com.workshop.metadataservice.document.metadata.Like;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @Builder
-public class LikeRetrieve {
+public class LikeRetrieve implements Serializable {
 
     private String sketch;
 

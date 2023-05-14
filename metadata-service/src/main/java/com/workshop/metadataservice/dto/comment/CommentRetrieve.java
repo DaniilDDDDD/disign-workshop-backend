@@ -4,11 +4,12 @@ import com.workshop.metadataservice.document.metadata.Comment;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @Builder
-public class CommentRetrieve {
+public class CommentRetrieve implements Serializable {
     private String id;
     private String sketch;
     private String user;

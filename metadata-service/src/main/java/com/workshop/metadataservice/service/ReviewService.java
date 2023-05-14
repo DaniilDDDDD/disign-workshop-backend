@@ -8,6 +8,9 @@ import com.workshop.metadataservice.repository.metadata.review.ReviewRepository;
 import com.workshop.metadataservice.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 
 
 @Service
+@CacheConfig(cacheNames = "review")
 public class ReviewService {
 
     @Value("${filesRoot}")
@@ -44,6 +48,7 @@ public class ReviewService {
     }
 
 
+    @Cacheable
     public List<EntityCount> count(
             Set<String> sketches
     ) {
@@ -51,6 +56,7 @@ public class ReviewService {
     }
 
 
+    @Cacheable(key = "#sketch")
     public List<Review> list(String sketch) {
         return reviewRepository.findAllBySketch(sketch);
     }
@@ -100,6 +106,7 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
+
     public Review update(
             String sketch,
             ReviewData reviewData,
@@ -146,6 +153,7 @@ public class ReviewService {
     }
 
 
+    @CacheEvict
     public void delete(
             Set<String> sketches,
             Authentication authentication
@@ -153,12 +161,12 @@ public class ReviewService {
         reviewRepository
                 .findAllBySketchInAndUser(sketches, (String) authentication.getPrincipal())
                 .forEach(review -> {
-                    review.getFiles().forEach(filename -> {
-                        try {
-                            FileUtil.deleteFile(filename);
-                        } catch (IOException ignored) {}
-                    });
-
+                    if (review.getFiles() != null)
+                        review.getFiles().forEach(filename -> {
+                            try {
+                                FileUtil.deleteFile(filename);
+                            } catch (IOException ignored) {}
+                        });
                     reviewRepository.delete(review);
                 });
     }

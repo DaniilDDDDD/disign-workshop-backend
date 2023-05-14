@@ -8,6 +8,9 @@ import com.workshop.metadataservice.dto.comment.CommentUpdate;
 import com.workshop.metadataservice.repository.content.SketchRepository;
 import com.workshop.metadataservice.repository.metadata.comment.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
 @Service
+@CacheConfig(cacheNames = "comment")
 public class CommentService {
 
     private final CommentRepository commentRepository;
@@ -32,11 +36,13 @@ public class CommentService {
     }
 
 
+    @Cacheable
     public List<EntityCount> count(Set<String> sketches) {
         return commentRepository.countSketchesComments(sketches);
     }
 
 
+    @Cacheable(key = "#sketch")
     public List<Comment> list(String sketch) {
         return commentRepository.findAllBySketch(sketch);
     }
