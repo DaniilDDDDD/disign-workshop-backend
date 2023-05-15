@@ -7,6 +7,8 @@ cd ../metadata
 bash delete-deploy-mongo-metadata.sh
 cd ../../postgres
 bash delete-deploy-postgres.sh
+cd ../redis
+bash delete-deploy-redis.sh
 
 cd ../../application/auth/
 bash delete-deploy-application-auth.sh

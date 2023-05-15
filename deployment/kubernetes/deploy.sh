@@ -7,6 +7,8 @@ cd ../metadata
 bash deploy-mongo-metadata.sh
 cd ../../postgres
 bash deploy-postgres.sh
+cd ../redis
+bash deploy-redis.sh
 
 cd ../../application/auth/
 bash deploy-application-auth.sh
