@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/comment")
 @Tag(name = "Comments", description = "Sketches' comments metadata endpoints")

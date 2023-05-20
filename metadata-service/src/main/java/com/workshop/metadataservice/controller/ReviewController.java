@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/review")
 @Tag(name = "Reviews", description = "Sketches' review metadata endpoints")

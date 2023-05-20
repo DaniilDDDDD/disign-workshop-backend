@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("")
 @Tag(name = "User", description = "Users' endpoints")

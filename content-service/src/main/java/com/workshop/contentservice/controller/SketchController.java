@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/sketches")
 @Tag(name = "Sketch", description = "Sketches' endpoints")

@@ -17,6 +17,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/tags")
 @Tag(name = "Tag", description = "Tags' endpoints")
