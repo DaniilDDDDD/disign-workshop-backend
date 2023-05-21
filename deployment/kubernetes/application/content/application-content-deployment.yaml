@@ -13,8 +13,8 @@ spec:
     spec:
       containers:
         - name: application-content
-          image: daniilpanyushin/workshop-content:0.1
-          imagePullPolicy: "IfNotPresent"
+          image: daniilpanyushin/workshop-content:0.2
+          imagePullPolicy: "Always"
           ports:
             - containerPort: 8080
           envFrom:

@@ -13,8 +13,8 @@ spec:
     spec:
       containers:
         - name: application-metadata
-          image: daniilpanyushin/workshop-metadata:0.1
-          imagePullPolicy: "IfNotPresent"
+          image: daniilpanyushin/workshop-metadata:0.2
+          imagePullPolicy: "Always"
           ports:
             - containerPort: 8080
           envFrom:

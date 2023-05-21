@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/like")
 @Tag(name = "Likes", description = "Sketches' likes metadata endpoints")
