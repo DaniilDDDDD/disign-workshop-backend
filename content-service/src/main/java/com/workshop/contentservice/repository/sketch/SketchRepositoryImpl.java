@@ -4,6 +4,8 @@ import com.workshop.contentservice.document.Access;
 import com.workshop.contentservice.document.Sketch;
 import com.workshop.contentservice.document.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -24,7 +26,7 @@ public class SketchRepositoryImpl implements SketchRepositoryCustom {
     }
 
     @Override
-    public List<Sketch> findAllByTagsAndAccess(List<Tag> tags, Access access, Pageable pageable) {
+    public Page<Sketch> findAllByTagsAndAccess(List<Tag> tags, Access access, Pageable pageable) {
 
         Query query = new Query();
 
@@ -35,11 +37,15 @@ public class SketchRepositoryImpl implements SketchRepositoryCustom {
         query.addCriteria(tagsCriteria);
         query.with(pageable);
 
-        return mongoTemplate.find(query, Sketch.class);
+        return new PageImpl<>(
+                mongoTemplate.find(query, Sketch.class),
+                pageable,
+                mongoTemplate.count(query, Sketch.class)
+        );
     }
 
     @Override
-    public List<Sketch> findAllByNameAndAccess(List<String> names, Access access, Pageable pageable) {
+    public Page<Sketch> findAllByNameAndAccess(List<String> names, Access access, Pageable pageable) {
         Query query = new Query();
 
         Criteria accessCriteria = Criteria.where("access").is(access);
@@ -50,11 +56,15 @@ public class SketchRepositoryImpl implements SketchRepositoryCustom {
         query.addCriteria(accessCriteria);
         query.with(pageable);
 
-        return mongoTemplate.find(query, Sketch.class);
+        return new PageImpl<>(
+                mongoTemplate.find(query, Sketch.class),
+                pageable,
+                mongoTemplate.count(query, Sketch.class)
+        );
     }
 
     @Override
-    public List<Sketch> findAllByTagsAndName(List<Tag> tags, List<String> name, Access access, Pageable pageable) {
+    public Page<Sketch> findAllByTagsAndName(List<Tag> tags, List<String> name, Access access, Pageable pageable) {
         Query query = new Query();
 
         Criteria accessCriteria = Criteria.where("access").is(access);
@@ -67,7 +77,11 @@ public class SketchRepositoryImpl implements SketchRepositoryCustom {
         query.addCriteria(textCriteria);
         query.with(pageable);
 
-        return mongoTemplate.find(query, Sketch.class);
+        return new PageImpl<>(
+                mongoTemplate.find(query, Sketch.class),
+                pageable,
+                mongoTemplate.count(query, Sketch.class)
+        );
     }
 
 }

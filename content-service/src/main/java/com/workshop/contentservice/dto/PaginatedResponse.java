@@ -15,6 +15,6 @@ import java.util.List;
 public class PaginatedResponse <T> implements Serializable {
 
     private List<T> data;
-    private Integer count;
+    private Long count;
 
 }

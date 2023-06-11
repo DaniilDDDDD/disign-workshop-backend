@@ -17,6 +17,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
@@ -58,8 +59,9 @@ public class SketchService {
 
     @Cacheable
     public PaginatedResponse<SketchRetrieve> findAllPublicByTagsAndName(
-            List<String> tagsNames, List<String> name, int page, int size, String sort) {
-        List<Sketch> results;
+            List<String> tagsNames, List<String> name, int page, int size, String sort
+    ) {
+        Page<Sketch> results;
         if (!tagsNames.isEmpty() && !name.isEmpty()) {
             List<Tag> tags = tagRepository.findAllByNameIn(tagsNames);
             results = sketchRepository.findAllByTagsAndName(
@@ -87,10 +89,8 @@ public class SketchService {
                     PageRequest.of(page, size, Sort.by(sort))
             );
         return new PaginatedResponse<>(
-                results.stream()
-                        .map(SketchRetrieve::parseSketchPublic)
-                        .collect(Collectors.toList()),
-                results.size()
+                results.stream().map(SketchRetrieve::parseSketchPublic).collect(Collectors.toList()),
+                results.getTotalElements()
         );
     }
 
