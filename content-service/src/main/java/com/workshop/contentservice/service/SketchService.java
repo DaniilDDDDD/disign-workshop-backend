@@ -3,7 +3,9 @@ package com.workshop.contentservice.service;
 import com.workshop.contentservice.document.Access;
 import com.workshop.contentservice.document.Sketch;
 import com.workshop.contentservice.document.Tag;
+import com.workshop.contentservice.dto.PaginatedResponse;
 import com.workshop.contentservice.dto.sketch.SketchCreate;
+import com.workshop.contentservice.dto.sketch.SketchRetrieve;
 import com.workshop.contentservice.dto.sketch.SketchUpdate;
 import com.workshop.contentservice.repository.TagRepository;
 import com.workshop.contentservice.repository.sketch.SketchRepository;
@@ -12,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @CacheConfig(cacheNames = "sketch")
@@ -55,41 +57,40 @@ public class SketchService {
 
 
     @Cacheable
-    public List<Sketch> findAllPublicByTagsAndName(
+    public PaginatedResponse<SketchRetrieve> findAllPublicByTagsAndName(
             List<String> tagsNames, List<String> name, int page, int size, String sort) {
-
+        List<Sketch> results;
         if (!tagsNames.isEmpty() && !name.isEmpty()) {
             List<Tag> tags = tagRepository.findAllByNameIn(tagsNames);
-
-            return sketchRepository.findAllByTagsAndName(
+            results = sketchRepository.findAllByTagsAndName(
                     tags,
                     name,
                     Access.PUBLIC,
                     PageRequest.of(page, size, Sort.by(sort))
             );
-        }
-
-        if (!tagsNames.isEmpty()) {
+        } else if (!tagsNames.isEmpty()) {
             List<Tag> tags = tagRepository.findAllByNameIn(tagsNames);
-
-            return sketchRepository.findAllByTagsAndAccess(
+            results = sketchRepository.findAllByTagsAndAccess(
                     tags,
                     Access.PUBLIC,
                     PageRequest.of(page, size, Sort.by(sort))
             );
-        }
-
-        if (!name.isEmpty()) {
-            return sketchRepository.findAllByNameAndAccess(
+        } else if (!name.isEmpty()) {
+            results = sketchRepository.findAllByNameAndAccess(
                     name,
                     Access.PUBLIC,
                     PageRequest.of(page, size, Sort.by(sort))
             );
-        }
-
-        return sketchRepository.findAllByAccess(
-                Access.PUBLIC,
-                PageRequest.of(page, size, Sort.by(sort))
+        } else
+            results = sketchRepository.findAllByAccess(
+                    Access.PUBLIC,
+                    PageRequest.of(page, size, Sort.by(sort))
+            );
+        return new PaginatedResponse<>(
+                results.stream()
+                        .map(SketchRetrieve::parseSketchPublic)
+                        .collect(Collectors.toList()),
+                results.size()
         );
     }
 

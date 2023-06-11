@@ -2,6 +2,7 @@ package com.workshop.contentservice.controller;
 
 import com.workshop.contentservice.document.Access;
 import com.workshop.contentservice.document.Sketch;
+import com.workshop.contentservice.dto.PaginatedResponse;
 import com.workshop.contentservice.dto.sketch.SketchCreate;
 import com.workshop.contentservice.dto.sketch.SketchRetrieve;
 import com.workshop.contentservice.dto.sketch.SketchUpdate;
@@ -43,34 +44,25 @@ public class SketchController {
             summary = "List sketches",
             description = "Get all sketches by tags or name"
     )
-    public ResponseEntity<List<SketchRetrieve>> list(
+    public ResponseEntity<PaginatedResponse<SketchRetrieve>> list(
             @Min(value = 0)
             @RequestParam(value = "page", defaultValue = "0")
-            int page,
+                    int page,
             @Min(value = 1)
             @RequestParam(value = "size", defaultValue = "9")
-            int size,
+                    int size,
             @RequestParam(value = "sort", defaultValue = "publicationDate")
-            String sort,
+                    String sort,
             @RequestParam(value = "tags", required = false)
-            List<String> tags,
+                    List<String> tags,
             @RequestParam(value = "name", required = false)
-            List<String> name
+                    List<String> name
     ) throws EntityNotFoundException {
-
         if (tags == null)
             tags = List.of();
-
         if (name == null)
             name = List.of();
-
-        return ResponseEntity.ok(
-                sketchService.findAllPublicByTagsAndName(
-                        tags, name, page, size, sort
-                    ).stream().map(
-                            SketchRetrieve::parseSketchPublic
-                    ).toList()
-        );
+        return ResponseEntity.ok(sketchService.findAllPublicByTagsAndName(tags, name, page, size, sort));
     }
 
 
@@ -81,7 +73,7 @@ public class SketchController {
     )
     public ResponseEntity<SketchRetrieve> retrieve(
             @PathVariable(name = "id")
-            String id,
+                    String id,
             Authentication authentication
     ) throws EntityNotFoundException {
         Sketch sketch = sketchService.findById(id);
@@ -108,12 +100,12 @@ public class SketchController {
     public ResponseEntity<List<SketchRetrieve>> me(
             @Min(value = 0)
             @RequestParam(value = "page", defaultValue = "0")
-            int page,
+                    int page,
             @Min(value = 1)
             @RequestParam(value = "size", defaultValue = "9")
-            int size,
+                    int size,
             @RequestParam(value = "sort", defaultValue = "publicationDate")
-            String sort,
+                    String sort,
             Authentication authentication
     ) {
         return ResponseEntity.ok(sketchService.findAllByAuthorEmail(
@@ -134,7 +126,7 @@ public class SketchController {
     public ResponseEntity<SketchRetrieve> create(
             @Valid
             @ModelAttribute
-            SketchCreate sketchCreate,
+                    SketchCreate sketchCreate,
             Authentication authentication
     ) throws EntityExistsException, IllegalArgumentException, IOException {
         return new ResponseEntity<>(
@@ -153,10 +145,10 @@ public class SketchController {
     )
     public ResponseEntity<SketchRetrieve> update(
             @PathVariable(name = "id")
-            String id,
+                    String id,
             @Valid
             @ModelAttribute
-            SketchUpdate sketchUpdate,
+                    SketchUpdate sketchUpdate,
             Authentication authentication
     ) throws EntityNotFoundException, IOException {
         return ResponseEntity.ok(
@@ -178,7 +170,7 @@ public class SketchController {
     )
     public ResponseEntity<String> delete(
             @PathVariable
-            String id,
+                    String id,
             Authentication authentication
     ) throws EntityNotFoundException {
         sketchService.delete(id, authentication);
