@@ -1,5 +1,6 @@
 package com.workshop.contentservice.dto.sketch;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.workshop.contentservice.document.Access;
 import com.workshop.contentservice.document.Sketch;
 import com.workshop.contentservice.document.Tag;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Data
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SketchRetrieve {
 
     private String id;

@@ -9,6 +9,8 @@ import com.workshop.contentservice.service.SketchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +20,7 @@ import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -183,6 +186,22 @@ public class SketchController {
                 "Sketch with id " + id + " is deleted!",
                 HttpStatus.NO_CONTENT
         );
+    }
+
+
+    @GetMapping("/resource")
+    @Operation(
+            summary = "Get resource",
+            description = "Get by link."
+    )
+    public ResponseEntity<Resource> avatar(
+            @RequestParam("url") String url
+    ) throws FileNotFoundException {
+        Resource resource = sketchService.getResource(url);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
 }

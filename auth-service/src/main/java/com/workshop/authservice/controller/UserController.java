@@ -14,6 +14,8 @@ import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,6 +29,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -153,7 +156,6 @@ public class UserController {
             @RequestParam(value = "roles", required = false)
                     List<String> roles
     ) throws EntityExistsException {
-
         List<User> users = new LinkedList<>();
 
         if (id != null)
@@ -206,6 +208,22 @@ public class UserController {
         tokenService.deleteUserTokens(user);
         userService.delete(user);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/resource")
+    @Operation(
+            summary = "Get resource",
+            description = "Get by link."
+    )
+    public ResponseEntity<Resource> resource(
+            @RequestParam("url") String url
+    ) throws FileNotFoundException {
+        Resource resource = userService.getResource(url);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
 }

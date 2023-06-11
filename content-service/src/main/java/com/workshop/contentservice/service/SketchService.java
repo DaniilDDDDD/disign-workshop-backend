@@ -14,6 +14,8 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
@@ -24,7 +26,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
 import java.util.*;
 
 @Service
@@ -216,5 +221,21 @@ public class SketchService {
             throw new AccessDeniedException("Access denied!");
 
         sketchRepository.delete(sketch);
+    }
+
+
+    public Resource getResource(String url) throws FileNotFoundException {
+        try {
+            Path filePath = Path.of(url);
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new FileNotFoundException(
+                        "Could not read file: " + url);
+            }
+        } catch (MalformedURLException e) {
+            throw new FileNotFoundException("Could not read file: " + url);
+        }
     }
 }

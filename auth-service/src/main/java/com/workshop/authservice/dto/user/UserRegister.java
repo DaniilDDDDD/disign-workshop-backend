@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 @Data
 public class UserRegister {
 
-
     @NotNull(message = "username field is not provided")
     private String username;
 
@@ -26,4 +25,5 @@ public class UserRegister {
     private String bio;
 
     private String role;
+
 }

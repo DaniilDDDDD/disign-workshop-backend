@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,6 +62,7 @@ public class ErrorControllerAdvice {
     @ExceptionHandler({
             JwtException.class,
             AuthenticationException.class,
+            FileNotFoundException.class,
             PersistenceException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)

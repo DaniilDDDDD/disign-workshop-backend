@@ -12,6 +12,8 @@ import com.workshop.authservice.repository.UserRepository;
 import com.workshop.authservice.utils.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,7 +30,10 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -265,6 +270,22 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         if (user.getAvatar() != null)
             FileUtil.deleteFile(user.getAvatar());
         userRepository.delete(user);
+    }
+
+
+    public Resource getResource(String url) throws FileNotFoundException {
+        try {
+            Path filePath = Path.of(url);
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new FileNotFoundException(
+                        "Could not read file: " + url);
+            }
+        } catch (MalformedURLException e) {
+            throw new FileNotFoundException("Could not read file: " + url);
+        }
     }
 
 
