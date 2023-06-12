@@ -19,4 +19,7 @@ bash delete-deploy-application-content.sh
 cd ../metadata
 bash delete-deploy-application-metadata.sh
 
-cd ../..
+cd ../../ingress
+bash delete-deploy-ingress.sh
+
+cd ..

@@ -1,7 +1,6 @@
 package com.workshop.contentservice.dto.sketch;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.workshop.contentservice.document.Access;
 import com.workshop.contentservice.document.Sketch;
 import com.workshop.contentservice.document.Tag;
 import lombok.Builder;
@@ -19,7 +18,7 @@ public class SketchRetrieve implements Serializable {
     private String id;
     private String authorEmail;
     private String authorName;
-    private Access access;
+    private String access;
     private List<Tag> tags;
     private Date publicationDate;
     private String name;
@@ -43,7 +42,7 @@ public class SketchRetrieve implements Serializable {
                 .id(sketch.getId())
                 .authorEmail(sketch.getAuthorEmail())
                 .authorName(sketch.getAuthorName())
-                .access(sketch.getAccess())
+                .access(sketch.getAccess().getName())
                 .tags(sketch.getTags())
                 .publicationDate(sketch.getPublicationDate())
                 .name(sketch.getName())

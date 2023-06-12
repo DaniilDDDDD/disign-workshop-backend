@@ -19,4 +19,7 @@ bash deploy-application-content.sh
 cd ../metadata
 bash deploy-application-metadata.sh
 
-cd ../..
+cd ../../ingress
+bash deploy-ingress.sh
+
+cd ..

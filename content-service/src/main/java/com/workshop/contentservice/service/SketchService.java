@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -156,7 +157,7 @@ public class SketchService {
         return sketchRepository.save(sketch);
     }
 
-
+    @CachePut(key = "#id")
     public Sketch update(
             String id,
             SketchUpdate sketchUpdate,
@@ -173,7 +174,7 @@ public class SketchService {
             throw new AccessDeniedException("Access denied!");
 
         sketch.setAccess(sketchUpdate.getAccess() != null ?
-                Access.valueOf(sketchUpdate.getAccess()) : sketch.getAccess());
+                Access.getByName(sketchUpdate.getAccess()) : sketch.getAccess());
         sketch.setTags(sketchUpdate.getTags() != null ?
                 tagRepository.findAllByNameIn(sketchUpdate.getTags()) : sketch.getTags());
         sketch.setName(sketchUpdate.getName() != null ?

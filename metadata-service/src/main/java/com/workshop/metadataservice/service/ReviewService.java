@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -62,6 +63,7 @@ public class ReviewService {
     }
 
 
+    @CachePut(key = "#sketch")
     public Review create(
             String sketch,
             ReviewData reviewData,
@@ -107,6 +109,7 @@ public class ReviewService {
     }
 
 
+    @CachePut(key = "#sketch")
     public Review update(
             String sketch,
             ReviewData reviewData,

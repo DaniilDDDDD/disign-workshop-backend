@@ -77,8 +77,7 @@ public class SketchController {
             Authentication authentication
     ) throws EntityNotFoundException {
         Sketch sketch = sketchService.findById(id);
-
-        if (Objects.equals(sketch.getAuthorEmail(), authentication.getPrincipal())) {
+        if (authentication != null && Objects.equals(sketch.getAuthorEmail(), authentication.getPrincipal())) {
             return ResponseEntity.ok(
                     SketchRetrieve.parseSketchPrivate(sketch)
             );
@@ -152,7 +151,7 @@ public class SketchController {
             Authentication authentication
     ) throws EntityNotFoundException, IOException {
         return ResponseEntity.ok(
-                SketchRetrieve.parseSketchPublic(
+                SketchRetrieve.parseSketchPrivate(
                         sketchService.update(
                                 id,
                                 sketchUpdate,

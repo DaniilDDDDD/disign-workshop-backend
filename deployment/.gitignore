@@ -1,3 +1,4 @@
 **config.yaml
 **secret.yaml
 **init.js
+/kubernetes/ingress/helm.exe
