@@ -15,7 +15,7 @@ public interface SketchRepository extends MongoRepository<Sketch, String>, Sketc
 
     Page<Sketch> findAllByAccess(Access access, Pageable pageable);
 
-    List<Sketch> findAllByAuthorEmail(String authorEmail, Pageable pageable);
+    Page<Sketch> findAllByAuthorEmail(String authorEmail, Pageable pageable);
 
     Optional<Sketch> findByName(String name);
 

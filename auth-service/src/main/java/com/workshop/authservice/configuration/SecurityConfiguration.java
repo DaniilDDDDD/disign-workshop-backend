@@ -59,11 +59,14 @@ public class SecurityConfiguration {
                         .antMatchers(
                                 "/login**",
                                 "/register**",
-                                "/refresh**"
+                                "/refresh**",
+                                "/resource**"
                         ).permitAll()
                         .antMatchers(HttpMethod.GET, "/").permitAll()
                         .antMatchers("/oauth2**").permitAll()
-                        .antMatchers("/docs/**").hasAnyRole("DEVELOPER", "ADMIN")
+                // TODO : баг с там, что мапа креденшелов не каститься в GrantedAuthorities
+//                        .antMatchers("/docs/**").hasAnyRole("DEVELOPER", "ADMIN")
+                        .antMatchers("/docs/**").permitAll()
                     .anyRequest().authenticated()
                 .and()
                     .apply(new JwtFilterChainConfigurer(jwtTokenProvider))

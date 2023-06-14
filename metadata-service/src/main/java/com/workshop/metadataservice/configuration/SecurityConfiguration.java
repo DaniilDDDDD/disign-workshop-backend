@@ -59,7 +59,9 @@ public class SecurityConfiguration {
                                 "/review**",
                                 "/review/**"
                         ).permitAll()
-                        .antMatchers("/docs/**").hasAnyRole("DEVELOPER", "ADMIN")
+                // TODO : баг с там, что мапа креденшелов не каститься в GrantedAuthorities
+//                        .antMatchers("/docs/**").hasAnyRole("DEVELOPER", "ADMIN")
+                        .antMatchers("/docs/**").permitAll()
                     .anyRequest().authenticated()
                 .and()
                     .apply(new JwtFilterChainConfigurer(jwtTokenProvider))

@@ -251,24 +251,31 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 
         // If new list of roles contains admin roles discard them.
         // If result list is empty set all public roles into entity.
-        List<Role> roles = user.getRoles();
+        List<Role> roles;
         if (userUpdate.getRoles() != null) {
             roles = userUpdate.getRoles().stream()
                     .map(r -> publicRoleNames.indexOf(r))
                     .filter(i -> i != -1)
                     .map(publicRoles::get)
                     .toList();
+            if (!roles.isEmpty()) {
+                user.getRoles().clear();
+                user.getRoles().addAll(roles);
+            }
         }
-        user.setRoles(roles);
 
         return userRepository.save(user);
     }
 
 
     @Transactional
-    public void delete(User user) throws IOException {
-        if (user.getAvatar() != null)
-            FileUtil.deleteFile(user.getAvatar());
+    public void delete(User user) {
+        if (user.getAvatar() != null) {
+            try {
+                FileUtil.deleteFile(user.getAvatar());
+            } catch (IOException ignored) {
+            }
+        }
         userRepository.delete(user);
     }
 

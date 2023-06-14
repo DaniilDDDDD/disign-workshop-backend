@@ -96,7 +96,7 @@ public class SketchController {
             summary = "List principal's sketches",
             description = "List all sketches of request sender"
     )
-    public ResponseEntity<List<SketchRetrieve>> me(
+    public ResponseEntity<PaginatedResponse<SketchRetrieve>> me(
             @Min(value = 0)
             @RequestParam(value = "page", defaultValue = "0")
                     int page,
@@ -107,12 +107,11 @@ public class SketchController {
                     String sort,
             Authentication authentication
     ) {
-        return ResponseEntity.ok(sketchService.findAllByAuthorEmail(
+        return ResponseEntity.ok(
+                sketchService.findAllByAuthorEmail(
                         (String) authentication.getPrincipal(),
                         page, size, sort
-                ).stream().map(
-                        SketchRetrieve::parseSketchPrivate
-                ).toList()
+                )
         );
     }
 

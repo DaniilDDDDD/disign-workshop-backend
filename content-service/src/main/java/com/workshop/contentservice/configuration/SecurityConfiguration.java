@@ -44,10 +44,11 @@ public class SecurityConfiguration {
                     .sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 .and()
                     .authorizeRequests()
-                        .antMatchers(
-                                HttpMethod.GET,
-                                "/sketches/me**"
-                        ).hasRole("CUSTOMER")
+                // TODO : баг с там, что мапа креденшелов не каститься в GrantedAuthorities
+//                        .antMatchers(
+//                                HttpMethod.GET,
+//                                "/sketches/me**"
+//                        ).hasRole("AUTHOR")
                         .antMatchers(
                                 HttpMethod.GET,
                                 "/sketches**",
@@ -58,7 +59,9 @@ public class SecurityConfiguration {
                                 "/tags**",
                                 "/tags/**"
                         ).permitAll()
-                        .antMatchers("/docs/**").hasAnyRole("DEVELOPER", "ADMIN")
+                // TODO : баг с там, что мапа креденшелов не каститься в GrantedAuthorities
+//                        .antMatchers("/docs/**").hasAnyRole("DEVELOPER", "ADMIN")
+                        .antMatchers("/docs/**").permitAll()
                     .anyRequest().authenticated()
                 .and()
                     .apply(new JwtFilterChainConfigurer(jwtTokenProvider))

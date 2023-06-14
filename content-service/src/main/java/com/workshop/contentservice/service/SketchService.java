@@ -106,11 +106,15 @@ public class SketchService {
 
 
     @Cacheable(key = "#authorEmail")
-    public List<Sketch> findAllByAuthorEmail(
+    public PaginatedResponse<SketchRetrieve> findAllByAuthorEmail(
             String authorEmail, int page, int size, String sort
     ) {
-        return sketchRepository.findAllByAuthorEmail(
+        Page<Sketch> results = sketchRepository.findAllByAuthorEmail(
                 authorEmail, PageRequest.of(page, size, Sort.by(sort))
+        );
+        return new PaginatedResponse<>(
+                results.stream().map(SketchRetrieve::parseSketchPrivate).collect(Collectors.toList()),
+                results.getTotalElements()
         );
     }
 

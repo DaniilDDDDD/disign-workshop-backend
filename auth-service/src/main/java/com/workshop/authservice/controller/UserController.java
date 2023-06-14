@@ -7,6 +7,7 @@ import com.workshop.authservice.dto.user.UserRegister;
 import com.workshop.authservice.dto.user.UserUpdate;
 import com.workshop.authservice.model.User;
 import com.workshop.authservice.security.JwtTokenProvider;
+import com.workshop.authservice.service.InitializationTokenService;
 import com.workshop.authservice.service.TokenService;
 import com.workshop.authservice.service.UserService;
 import com.workshop.authservice.service.messaging.AuthenticationConfirmationRabbitMQService;
@@ -43,17 +44,20 @@ public class UserController {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationConfirmationRabbitMQService authenticationConfirmationRabbitMQService;
     private final TokenService tokenService;
+    private final InitializationTokenService initializationTokenService;
 
     @Autowired
     public UserController(
             UserService userService,
             JwtTokenProvider jwtTokenProvider,
             AuthenticationConfirmationRabbitMQService authenticationConfirmationRabbitMQService,
-            TokenService tokenService) {
+            TokenService tokenService,
+            InitializationTokenService initializationTokenService) {
         this.userService = userService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.authenticationConfirmationRabbitMQService = authenticationConfirmationRabbitMQService;
         this.tokenService = tokenService;
+        this.initializationTokenService = initializationTokenService;
     }
 
 
@@ -187,9 +191,7 @@ public class UserController {
             Authentication authentication
     ) throws IOException, EntityNotFoundException {
         Long id = (userService.getUserByPrincipal(authentication.getPrincipal())).getId();
-
         User user = userService.update(id, userUpdate);
-
         return ResponseEntity.ok().body(
                 UserInfo.parseUser(user)
         );
@@ -203,9 +205,11 @@ public class UserController {
     )
     public ResponseEntity<String> delete(
             Authentication authentication
-    ) throws IOException {
+    ) {
         User user = userService.getUserByPrincipal(authentication.getPrincipal());
         tokenService.deleteUserTokens(user);
+        // TODO: use RabbitMQ to delete entities - send request to background sercvice and it will delete entities
+        initializationTokenService.deleteAllByUser(user);
         userService.delete(user);
         return ResponseEntity.noContent().build();
     }
